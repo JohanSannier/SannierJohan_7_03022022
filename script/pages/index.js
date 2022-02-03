@@ -12,11 +12,10 @@ async function getRecipes() {
 async function displayRecipes() {
   const recipes = await getRecipes();
   const mainSection = document.getElementById('main-section');
-  console.log(mainSection);
-  recipes.forEach((recipe) => {
-    const card = recipeFactory(recipe);
-    const tt = card.getRecipeCard();
-    mainSection.appendChild(tt);
+  recipes.forEach(async (recipe) => {
+    const cardData = recipeFactory(recipe);
+    const createCard = cardData.getRecipeCard();
+    mainSection.appendChild(createCard);
   });
 }
 displayRecipes();

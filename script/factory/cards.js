@@ -23,6 +23,7 @@ function recipeFactory(data) {
     card.appendChild(img);
     const cardBody = document.createElement('div');
     cardBody.classList.add('card-body', 'bg-light');
+    cardBody.style.height = '260px';
     card.appendChild(cardBody);
     const row_1 = document.createElement('div');
     row_1.classList.add('row');
@@ -35,7 +36,7 @@ function recipeFactory(data) {
     cardTitle.innerText = name;
     col_1.appendChild(cardTitle);
     const col_2 = document.createElement('div');
-    col_2.classList.add('col');
+    col_2.classList.add('col-auto');
     row_1.appendChild(col_2);
     const clockIcon = document.createElement('i');
     clockIcon.classList.add('bi', 'bi-clock', 'me-2');
@@ -52,19 +53,43 @@ function recipeFactory(data) {
     row_2.appendChild(col_3);
     const cardText = document.createElement('p');
     cardText.classList.add('card-text');
+    cardText.style.fontSize = '12px';
     col_3.appendChild(cardText);
     const ingredientList = document.createElement('ul');
     ingredientList.classList.add('list-unstyled');
-    // AJOUT DES INGREDIENTS LI AVEC IF
-    // ingredients.forEach((element) => {
-    //   console.log(element);
-    // });
+    ingredients.forEach((element) => {
+      const listItem = document.createElement('li');
+      if (element.unit) {
+        if (
+          element.unit == 'cl' ||
+          element.unit == 'g' ||
+          element.unit == 'ml' ||
+          element.unit == 'kg'
+        ) {
+          listItem.innerHTML = `<span class="fw-bold">${element.ingredient}:</span> ${element.quantity}${element.unit}`;
+        } else {
+          listItem.innerHTML = `<span class="fw-bold">${element.ingredient}:</span> ${element.quantity} ${element.unit}`;
+        }
+      } else if (element.quantity) {
+        listItem.innerHTML = `<span class="fw-bold">${element.ingredient}:</span> ${element.quantity}`;
+      } else {
+        listItem.innerHTML = `<span class="fw-bold">${element.ingredient}</span>`;
+      }
+      ingredientList.appendChild(listItem);
+    });
     cardText.appendChild(ingredientList);
     const col_4 = document.createElement('div');
     col_4.classList.add('col');
     row_2.appendChild(col_4);
     const cardDescription = document.createElement('p');
     cardDescription.classList.add('card-text');
+    cardDescription.style.fontSize = '12px';
+    cardDescription.style.webkitBoxOrient = 'vertical';
+    cardDescription.style.display = '-webkit-box';
+    cardDescription.style.webkitLineClamp = '8';
+    cardDescription.style.overflow = 'hidden';
+    cardDescription.style.textOverflow = 'ellipsis';
+    cardDescription.style.whiteSpace = 'normal';
     cardDescription.innerText = description;
     col_4.appendChild(cardDescription);
     return wrapper;

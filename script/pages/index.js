@@ -31,8 +31,10 @@ function getInputFilters(type, color) {
   chevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
   let input = document.createElement('input');
   input.classList.add('btn', `btn-${color}`);
-  input.style.width = '100px';
-  input.setAttribute('placeholder', `Rechercher un ${type.id}`);
+  // input.style.width = '100px';
+  const dataName = type.getAttribute('data-name');
+  console.log(dataName);
+  input.setAttribute('placeholder', `Rechercher un ${dataName}`);
   type.innerText = '';
   type.appendChild(input);
 }
@@ -54,6 +56,11 @@ async function createContainerFilter(parent, type) {
 
   const array = createFilteredArray(type);
   console.log(array);
+  array.forEach((element) => {
+    let liste = document.createElement('li');
+    liste.innerText = element;
+    list.appendChild(liste);
+  });
   parent.appendChild(container);
   container.appendChild(list);
   createListItem(type);

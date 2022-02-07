@@ -1,3 +1,10 @@
+const colBtnIngredient = document.querySelector('#col-btn-ingredients');
+const colBtnAppliance = document.querySelector('#col-btn-appliance');
+const colBtnUstensil = document.querySelector('#col-btn-ustensil');
+const IngredientsArray = [];
+const AppliancesArray = [];
+const UstensilsArray = [];
+
 async function getRecipes() {
   let url = '../data/recipes.json';
   try {
@@ -18,7 +25,6 @@ async function displayRecipes() {
     mainSection.appendChild(createCard);
   });
 }
-displayRecipes();
 
 function getInputFilters(type, color) {
   let chevron = document.querySelector(`#chevron-${type.id}`);
@@ -26,54 +32,71 @@ function getInputFilters(type, color) {
   let input = document.createElement('input');
   input.classList.add('btn', `btn-${color}`);
   input.style.width = '100px';
+  input.setAttribute('placeholder', `Rechercher un ${type.id}`);
   type.innerText = '';
   type.appendChild(input);
 }
 
 async function createContainerFilter(parent, type) {
   let container = document.createElement('div');
-  let firstRow = document.createElement('div');
-  firstRow.classList.add('row');
-  let inputCol = document.createElement('div');
-  inputCol.classList.add('col');
-  let input = document.createElement('input');
-  let secondRow = document.createElement('div');
-  secondRow.classList.add('row');
-  let itemCol = document.createElement('div');
-  itemCol.classList.add('col');
   let list = document.createElement('ul');
   const recipes = await getRecipes();
-  recipes.forEach(async (recipe) => {
-    const cardData = recipeFactory(recipe);
-    console.log(type);
-    console.log(cardData);
-  });
-  // cardData.forEach(async (element) => {
-  //   let listItem = document.createElement('li');
-  //   listItem.innerText = element.ingredients;
-  //   list.appendChild(listItem);
-  // });
 
+  recipes.forEach(async (recipe) => {
+    recipe.ingredients.forEach((element) => {
+      IngredientsArray.push(element.ingredient);
+    });
+    AppliancesArray.push(recipe.appliance);
+    recipe.ustensils.forEach((element) => {
+      UstensilsArray.push(element);
+    });
+  });
+
+  const array = createFilteredArray(type);
+  console.log(array);
   parent.appendChild(container);
-  container.appendChild(firstRow);
-  firstRow.appendChild(inputCol);
-  inputCol.appendChild(input);
-  container.appendChild(secondRow);
-  secondRow.appendChild(itemCol);
-  itemCol.appendChild(list);
+  container.appendChild(list);
+  createListItem(type);
 }
 
+// Création de la fonction qui récupère les ingrédients, appareils et ustensils et les classe dans un nouveau tableau sans doublon
+function createFilteredArray(type) {
+  switch (type) {
+    case 'ingredients':
+      const filteredIngredientsArray = IngredientsArray.filter(
+        (element, pos) => IngredientsArray.indexOf(element) == pos
+      );
+      return filteredIngredientsArray;
+    case 'appliance':
+      const filteredAppliancesArray = AppliancesArray.filter(
+        (element, pos) => AppliancesArray.indexOf(element) == pos
+      );
+      return filteredAppliancesArray;
+    case 'ustensil':
+      const filteredUstensilsArray = UstensilsArray.filter(
+        (element, pos) => UstensilsArray.indexOf(element) == pos
+      );
+      return filteredUstensilsArray;
+
+    default:
+      break;
+  }
+}
+
+// Gestion des évènements de création des filtres au clic sur les boutons de filtres
 window.addEventListener('click', (e) => {
   switch (e.target.id) {
     case 'ingredients':
       getInputFilters(e.target, 'primary');
-      createContainerFilter(e.target, 'ingredients');
+      createContainerFilter(colBtnIngredient, e.target.id);
       break;
     case 'appliance':
       getInputFilters(e.target, 'success');
+      createContainerFilter(colBtnAppliance, e.target.id);
       break;
     case 'ustensil':
       getInputFilters(e.target, 'danger');
+      createContainerFilter(colBtnUstensil, e.target.id);
       break;
 
     default:
@@ -81,10 +104,7 @@ window.addEventListener('click', (e) => {
   }
 });
 
-async function test() {
-  const recipes = await getRecipes();
-  recipes.forEach(async (recipe) => {
-    const cardData = recipeFactory(recipe);
-    return cardData;
-  });
-}
+function createListItem(type) {}
+
+// Init
+displayRecipes();

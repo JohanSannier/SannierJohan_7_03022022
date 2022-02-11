@@ -31,22 +31,23 @@ function getInputFilters(type, color) {
   chevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
   let input = document.createElement('input');
   input.classList.add('btn', `btn-${color}`);
-  // input.style.width = '100px';
   const dataName = type.getAttribute('data-name');
   input.setAttribute('placeholder', `Rechercher un ${dataName}`);
   input.classList.add('text-white');
+  input.setAttribute('id', `input-${color}`);
   type.innerText = '';
+  // let parentCol = type.parentNode.parentNode;
   type.appendChild(input);
 }
 
 async function createContainerFilter(parent, type, color) {
   let container = document.createElement('div');
-  let row = document.createElement('div');
-  row.classList.add('row');
-
+  container.style.width = '100%';
+  container.style.height = '40vh';
+  container.style.overflow = 'scroll';
   container.classList.add(`bg-${color}`);
   let list = document.createElement('ul');
-  list.classList.add('main-ul');
+  list.classList.add('main-ul', 'd-flex', 'flex-wrap');
   list.classList.add('list-unstyled');
   const recipes = await getRecipes();
 
@@ -63,7 +64,7 @@ async function createContainerFilter(parent, type, color) {
   const array = createFilteredArray(type);
   array.forEach((element) => {
     let liste = document.createElement('li');
-    liste.classList.add('main-list');
+    liste.classList.add('main-list', 'w-33');
     liste.innerText = element;
     list.appendChild(liste);
   });
@@ -102,19 +103,70 @@ window.addEventListener('click', (e) => {
       getInputFilters(e.target, 'primary');
       createContainerFilter(colBtnIngredient, e.target.id, 'primary');
       break;
+    case 'chevron-ingredients':
+      getInputFilters(e.target.previousElementSibling, 'primary');
+      createContainerFilter(
+        colBtnIngredient,
+        e.target.previousElementSibling.id,
+        'primary'
+      );
+      break;
     case 'appliance':
       getInputFilters(e.target, 'success');
       createContainerFilter(colBtnAppliance, e.target.id, 'success');
       break;
+    case 'chevron-appliance':
+      getInputFilters(e.target.previousElementSibling, 'success');
+      createContainerFilter(
+        colBtnAppliance,
+        e.target.previousElementSibling.id,
+        'success'
+      );
+      break;
     case 'ustensil':
       getInputFilters(e.target, 'danger');
       createContainerFilter(colBtnUstensil, e.target.id, 'danger');
+      break;
+    case 'chevron-ustensil':
+      getInputFilters(e.target.previousElementSibling, 'danger');
+      createContainerFilter(
+        colBtnUstensil,
+        e.target.previousElementSibling.id,
+        'danger'
+      );
+      break;
+    default:
+      break;
+  }
+});
+
+window.addEventListener('input', (e) => {
+  switch (e.target.id) {
+    case 'input-primary':
+      beginFiltering('ingredients', e);
+      break;
+    case 'input-success':
+      beginFiltering('appliance', e);
+      break;
+    case 'input-danger':
+      beginFiltering('ustensil', e);
       break;
 
     default:
       break;
   }
 });
+
+function beginFiltering(type, e) {
+  if (e.target.value.length >= 3) {
+    const filteredIngredients = createFilteredArray(type);
+    filteredIngredients.forEach((element) => {
+      if (e.target.value == element) {
+        console.log(element);
+      }
+    });
+  }
+}
 
 // Init
 displayRecipes();

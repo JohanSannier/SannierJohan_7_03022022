@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+.main-ul {
+  margin-top: -5px;
+}
+
+.main-list {
+  font-family: 'Lato';
+  color: white;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+*::placeholder {
+  color: white;
+}
+
+/* Ne fonctionne pas */
+#searchbar {
+  padding-right: 30px;
+}
+
+.bi-search {
+  margin-left: -30px;
+  z-index: 1000;
+}

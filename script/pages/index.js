@@ -26,6 +26,7 @@ async function displayRecipes() {
   });
 }
 
+// Création d'un input à l'intérieur du span
 function getInputFilters(type, color) {
   let chevron = document.querySelector(`#chevron-${type.id}`);
   chevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
@@ -42,6 +43,7 @@ function getInputFilters(type, color) {
 
 async function createContainerFilter(parent, type, color) {
   let container = document.createElement('div');
+  container.setAttribute('id', `container-${type}`);
   container.style.width = '100%';
   container.style.height = '40vh';
   container.style.overflow = 'scroll';
@@ -79,6 +81,7 @@ function createFilteredArray(type) {
       const filteredIngredientsArray = IngredientsArray.filter(
         (element, pos) => IngredientsArray.indexOf(element) == pos
       );
+
       return filteredIngredientsArray;
     case 'appliance':
       const filteredAppliancesArray = AppliancesArray.filter(
@@ -101,39 +104,51 @@ window.addEventListener('click', (e) => {
   switch (e.target.id) {
     case 'ingredients':
       getInputFilters(e.target, 'primary');
-      createContainerFilter(colBtnIngredient, e.target.id, 'primary');
+      // createContainerFilter(colBtnIngredient, e.target.id, 'primary');
       break;
     case 'chevron-ingredients':
-      getInputFilters(e.target.previousElementSibling, 'primary');
-      createContainerFilter(
-        colBtnIngredient,
-        e.target.previousElementSibling.id,
-        'primary'
-      );
+      if (e.target.parentNode.nextElementSibling) {
+        getTargetGenealogy(e);
+      } else {
+        getInputFilters(e.target.previousElementSibling, 'primary');
+        createContainerFilter(
+          colBtnIngredient,
+          e.target.previousElementSibling.id,
+          'primary'
+        );
+      }
       break;
     case 'appliance':
       getInputFilters(e.target, 'success');
-      createContainerFilter(colBtnAppliance, e.target.id, 'success');
+      // createContainerFilter(colBtnAppliance, e.target.id, 'success');
       break;
     case 'chevron-appliance':
-      getInputFilters(e.target.previousElementSibling, 'success');
-      createContainerFilter(
-        colBtnAppliance,
-        e.target.previousElementSibling.id,
-        'success'
-      );
+      if (e.target.parentNode.nextElementSibling) {
+        getTargetGenealogy(e);
+      } else {
+        getInputFilters(e.target.previousElementSibling, 'success');
+        createContainerFilter(
+          colBtnAppliance,
+          e.target.previousElementSibling.id,
+          'success'
+        );
+      }
       break;
     case 'ustensil':
       getInputFilters(e.target, 'danger');
-      createContainerFilter(colBtnUstensil, e.target.id, 'danger');
+      // createContainerFilter(colBtnUstensil, e.target.id, 'danger');
       break;
     case 'chevron-ustensil':
-      getInputFilters(e.target.previousElementSibling, 'danger');
-      createContainerFilter(
-        colBtnUstensil,
-        e.target.previousElementSibling.id,
-        'danger'
-      );
+      if (e.target.parentNode.nextElementSibling) {
+        getTargetGenealogy(e);
+      } else {
+        getInputFilters(e.target.previousElementSibling, 'danger');
+        createContainerFilter(
+          colBtnUstensil,
+          e.target.previousElementSibling.id,
+          'danger'
+        );
+      }
       break;
     default:
       break;
@@ -157,16 +172,49 @@ window.addEventListener('input', (e) => {
   }
 });
 
-function beginFiltering(type, e) {
+async function beginFiltering(type, e) {
   if (e.target.value.length >= 3) {
-    const filteredIngredients = createFilteredArray(type);
-    filteredIngredients.forEach((element) => {
-      if (e.target.value == element) {
-        console.log(element);
-      }
+    const recipes = await getRecipes();
+
+    recipes.forEach(async (recipe) => {
+      recipe.ingredients.forEach((element) => {
+        IngredientsArray.push(element.ingredient);
+      });
+      AppliancesArray.push(recipe.appliance);
+      recipe.ustensils.forEach((element) => {
+        UstensilsArray.push(element);
+      });
     });
+    const filteredResult = createFilteredArray(type);
+    console.log(filtreTexte(filteredResult, e.target.value));
   }
 }
 
-// Init
+// Fonction qui filtre l'input de l'utilisateur et renvoie les données correspondantes
+function filtreTexte(arr, requete) {
+  return arr.filter(
+    (el) => el.toLowerCase().indexOf(requete.toLowerCase()) !== -1
+  );
+}
+
+// Fonction pour mettre en majuscule la première lettre d'une chaine de caractère
+function capitalizeFirstLetter(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Fonction pour permettre d'ajouter ou de supprimer l'input des filtres au clic sur le chevron du bouton
+function getTargetGenealogy(e) {
+  let displayedContainer = document.querySelector(
+    `#container-${e.target.previousElementSibling.id}`
+  );
+  e.target.parentNode.parentNode.removeChild(displayedContainer);
+  e.target.previousElementSibling.removeChild(
+    e.target.previousElementSibling.firstChild
+  );
+  e.target.previousElementSibling.innerText = capitalizeFirstLetter(
+    e.target.previousElementSibling.id
+  );
+}
+
+// Initialisation de la page
 displayRecipes();

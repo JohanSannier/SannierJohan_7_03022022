@@ -1,6 +1,7 @@
 const colBtnIngredient = document.querySelector('#col-btn-ingredients');
 const colBtnAppliance = document.querySelector('#col-btn-appliance');
 const colBtnUstensil = document.querySelector('#col-btn-ustensil');
+const searchbar = document.querySelector('#searchbar');
 const IngredientsArray = [];
 const AppliancesArray = [];
 const UstensilsArray = [];
@@ -157,6 +158,9 @@ window.addEventListener('click', (e) => {
 
 window.addEventListener('input', (e) => {
   switch (e.target.id) {
+    case 'searchbar':
+      mainFilter(e);
+      break;
     case 'input-primary':
       beginFiltering('ingredients', e);
       break;
@@ -171,6 +175,28 @@ window.addEventListener('input', (e) => {
       break;
   }
 });
+
+async function mainFilter(e) {
+  let inputLength = searchbar.value.length;
+  let input = searchbar.value;
+  let recipes = await getRecipes();
+  if (inputLength >= 3) {
+    recipes.forEach(async (recipe) => {
+      let i = 0;
+      capitalizedFirstLetterInput = capitalizeFirstLetter(input);
+      if (
+        recipe.name.includes(capitalizedFirstLetterInput || input) ||
+        recipe.description.includes(capitalizedFirstLetterInput || input) ||
+        recipe.ingredients[i].ingredient.includes(
+          capitalizedFirstLetterInput || input
+        )
+      ) {
+        console.log(recipe);
+      }
+      i++;
+    });
+  }
+}
 
 async function beginFiltering(type, e) {
   if (e.target.value.length >= 3) {

@@ -269,7 +269,7 @@
   },
   {
     "id": 15,
-    "name": "Crêpes Chocolat Banane",
+    "name": "Crêpes chocolat banane",
     "servings": 10,
     "ingredients": [
       { "ingredient": "Oeuf", "quantity": 3 },
@@ -340,7 +340,7 @@
   },
   {
     "id": 19,
-    "name": "Shake Banane Kiwi",
+    "name": "Shake banane kiwi",
     "servings": 4,
     "ingredients": [
       { "ingredient": "Kiwi", "quantity": 4 },
@@ -514,7 +514,7 @@
       { "ingredient": "Pommes de terre", "quantity": 400, "unit": "g" },
       { "ingredient": "Oseille", "quantity": 75, "unit": "g" },
       { "ingredient": "Beurre", "quantity": 50, "unit": "g" },
-      { "ingredient": "Crême fraiche", "quantity": 10, "unit": "cl" }
+      { "ingredient": "Crème fraiche", "quantity": 10, "unit": "cl" }
     ],
     "time": 80,
     "description": "Emincer les blanc de poireaux et les faire chauffer dans 25 g de beurre. AJouter les pommes de terres coupées en morceaux. Ajouter l'eau et laisser mijoter pour 45 minutes. Chauffer l'oseille avec le beurre restant puis incorporer le tout. Mixez. Ajoutez la crème. Bon appetit.",

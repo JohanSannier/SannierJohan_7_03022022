@@ -185,11 +185,14 @@ async function mainFilter(e) {
       let i = 0;
       capitalizedFirstLetterInput = capitalizeFirstLetter(input);
       if (
-        recipe.name.includes(capitalizedFirstLetterInput || input) ||
-        recipe.description.includes(capitalizedFirstLetterInput || input) ||
+        recipe.name.indexOf(input) != -1 ||
+        recipe.name.indexOf(capitalizedFirstLetterInput) != -1 ||
+        recipe.description.includes(capitalizedFirstLetterInput) ||
+        recipe.description.includes(input) ||
         recipe.ingredients[i].ingredient.includes(
-          capitalizedFirstLetterInput || input
-        )
+          capitalizedFirstLetterInput
+        ) ||
+        recipe.ingredients[i].ingredient.includes(input)
       ) {
         console.log(recipe);
       }

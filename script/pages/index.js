@@ -2,6 +2,7 @@ const colBtnIngredient = document.querySelector('#col-btn-ingredients');
 const colBtnAppliance = document.querySelector('#col-btn-appliance');
 const colBtnUstensil = document.querySelector('#col-btn-ustensil');
 const searchbar = document.querySelector('#searchbar');
+const mainSection = document.getElementById('main-section');
 const IngredientsArray = [];
 const AppliancesArray = [];
 const UstensilsArray = [];
@@ -19,7 +20,6 @@ async function getRecipes() {
 
 async function displayRecipes() {
   const recipes = await getRecipes();
-  const mainSection = document.getElementById('main-section');
   recipes.forEach(async (recipe) => {
     const cardData = recipeFactory(recipe);
     const createCard = cardData.getRecipeCard();
@@ -159,7 +159,7 @@ window.addEventListener('click', (e) => {
 window.addEventListener('input', (e) => {
   switch (e.target.id) {
     case 'searchbar':
-      mainFilter(e);
+      mainFilter();
       break;
     case 'input-primary':
       beginFiltering('ingredients', e);
@@ -176,7 +176,7 @@ window.addEventListener('input', (e) => {
   }
 });
 
-async function mainFilter(e) {
+async function mainFilter() {
   let inputLength = searchbar.value.length;
   let input = searchbar.value;
   let recipes = await getRecipes();
@@ -194,11 +194,32 @@ async function mainFilter(e) {
         ) ||
         recipe.ingredients[i].ingredient.includes(input)
       ) {
-        console.log(recipe);
+        // Si la carte n'est pas déjà injectée dans le DOM
+        if (mainSection.childElementCount != 0) {
+          console.log('denfant');
+          for (let index = 0; index < mainSection.children.length; index++) {
+            const element = mainSection.children[index];
+            console.log(element);
+            if (
+              recipe.getAttribute('data-id') == element.getAttribute('data-id')
+            ) {
+              console.log(`ce ${element} est un doublon`);
+            } else {
+            }
+          }
+        } else {
+          injectCard(recipe);
+        }
       }
       i++;
     });
   }
+}
+
+function injectCard(recipe) {
+  const cardData = recipeFactory(recipe);
+  const createCard = cardData.getRecipeCard();
+  mainSection.appendChild(createCard);
 }
 
 async function beginFiltering(type, e) {
@@ -246,4 +267,4 @@ function getTargetGenealogy(e) {
 }
 
 // Initialisation de la page
-displayRecipes();
+// displayRecipes();

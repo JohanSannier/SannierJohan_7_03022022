@@ -10,8 +10,9 @@ function recipeFactory(data) {
     ustensils,
   } = data;
 
-  function getRecipeCard() {
+  function getRecipeCard(id) {
     const wrapper = document.createElement('div');
+    wrapper.setAttribute('data-id', data.id);
     wrapper.classList.add('col-12', 'col-lg-4', 'col-md-6');
     const card = document.createElement('div');
     card.classList.add('card', 'mb-5');

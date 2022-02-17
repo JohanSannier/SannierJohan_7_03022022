@@ -3,6 +3,7 @@ const colBtnAppliance = document.querySelector('#col-btn-appliance');
 const colBtnUstensil = document.querySelector('#col-btn-ustensil');
 const searchbar = document.querySelector('#searchbar');
 const mainSection = document.getElementById('main-section');
+const mainContainer = document.querySelector('#main-container');
 const IngredientsArray = [];
 const AppliancesArray = [];
 const UstensilsArray = [];
@@ -42,63 +43,62 @@ function getInputFilters(type, color) {
   type.appendChild(input);
 }
 
-async function createContainerFilter(parent, type, color) {
-  let container = document.createElement('div');
-  container.setAttribute('id', `container-${type}`);
-  container.style.width = '100%';
-  container.style.height = '40vh';
-  container.style.overflow = 'scroll';
-  container.classList.add(`bg-${color}`);
-  let list = document.createElement('ul');
-  list.classList.add('main-ul', 'd-flex', 'flex-wrap');
-  list.classList.add('list-unstyled');
-  const recipes = await getRecipes();
+// async function createContainerFilter(parent, type, color) {
+//   let container = document.createElement('div');
+//   container.setAttribute('id', `container-${type}`);
+//   container.style.width = '100%';
+//   container.style.height = '40vh';
+//   container.style.overflow = 'scroll';
+//   container.classList.add(`bg-${color}`);
+//   let list = document.createElement('ul');
+//   list.classList.add('main-ul', 'd-flex', 'flex-wrap');
+//   list.classList.add('list-unstyled');
+//   const recipes = await getRecipes();
 
-  recipes.forEach(async (recipe) => {
-    recipe.ingredients.forEach((element) => {
-      IngredientsArray.push(element.ingredient);
-    });
-    AppliancesArray.push(recipe.appliance);
-    recipe.ustensils.forEach((element) => {
-      UstensilsArray.push(element);
-    });
-  });
+//   recipes.forEach(async (recipe) => {
+//     recipe.ingredients.forEach((element) => {
+//       IngredientsArray.push(element.ingredient);
+//     });
+//     AppliancesArray.push(recipe.appliance);
+//     recipe.ustensils.forEach((element) => {
+//       UstensilsArray.push(element);
+//     });
+//   });
 
-  const array = createFilteredArray(type);
-  array.forEach((element) => {
-    let liste = document.createElement('li');
-    liste.classList.add('main-list', 'w-33');
-    liste.innerText = element;
-    list.appendChild(liste);
-  });
-  parent.appendChild(container);
-  container.appendChild(list);
-}
+//   const array = createFilteredArray(type);
+//   array.forEach((element) => {
+//     let liste = document.createElement('li');
+//     liste.classList.add('main-list', 'w-33');
+//     liste.innerText = element;
+//     list.appendChild(liste);
+//   });
+//   parent.appendChild(container);
+//   container.appendChild(list);
+// }
 
 // Création de la fonction qui récupère les ingrédients, appareils et ustensils et les classe dans un nouveau tableau sans doublon
-function createFilteredArray(type) {
-  switch (type) {
-    case 'ingredients':
-      const filteredIngredientsArray = IngredientsArray.filter(
-        (element, pos) => IngredientsArray.indexOf(element) == pos
-      );
+// function createFilteredArray(type) {
+//   switch (type) {
+//     case 'ingredients':
+//       const filteredIngredientsArray = IngredientsArray.filter(
+//         (element, pos) => IngredientsArray.indexOf(element) == pos
+//       );
+//       return filteredIngredientsArray;
+//     case 'appliance':
+//       const filteredAppliancesArray = AppliancesArray.filter(
+//         (element, pos) => AppliancesArray.indexOf(element) == pos
+//       );
+//       return filteredAppliancesArray;
+//     case 'ustensil':
+//       const filteredUstensilsArray = UstensilsArray.filter(
+//         (element, pos) => UstensilsArray.indexOf(element) == pos
+//       );
+//       return filteredUstensilsArray;
 
-      return filteredIngredientsArray;
-    case 'appliance':
-      const filteredAppliancesArray = AppliancesArray.filter(
-        (element, pos) => AppliancesArray.indexOf(element) == pos
-      );
-      return filteredAppliancesArray;
-    case 'ustensil':
-      const filteredUstensilsArray = UstensilsArray.filter(
-        (element, pos) => UstensilsArray.indexOf(element) == pos
-      );
-      return filteredUstensilsArray;
-
-    default:
-      break;
-  }
-}
+//     default:
+//       break;
+//   }
+// }
 
 // Gestion des évènements de création des filtres au clic sur les boutons de filtres
 window.addEventListener('click', (e) => {
@@ -176,15 +176,20 @@ window.addEventListener('input', (e) => {
   }
 });
 
+// Fonction pour la recherche principale
 async function mainFilter() {
   let inputLength = searchbar.value.length;
   let input = searchbar.value;
   let recipes = await getRecipes();
   if (inputLength >= 3) {
+    // On efface les recettes avant de lancer la boucle pour que les informations soient actualisées
+    clearContent();
     recipes.forEach(async (recipe) => {
+      // Compteur pour itérer sur chaque ingrédient d'une recette
       let i = 0;
       capitalizedFirstLetterInput = capitalizeFirstLetter(input);
       if (
+        // Si l'input est retrouvé parmi le titre, la description ou les ingrédients d'une recette
         recipe.name.indexOf(input) != -1 ||
         recipe.name.indexOf(capitalizedFirstLetterInput) != -1 ||
         recipe.description.includes(capitalizedFirstLetterInput) ||
@@ -194,25 +199,33 @@ async function mainFilter() {
         ) ||
         recipe.ingredients[i].ingredient.includes(input)
       ) {
-        // Si la carte n'est pas déjà injectée dans le DOM
-        if (mainSection.childElementCount != 0) {
-          console.log('denfant');
+        // Si la carte n'est pas déjà injectée dans le DOM, je l'injecte dans le DOM
+        if (mainSection.children.length == 0) {
+          injectCard(recipe);
+        } else {
+          // Si il y a déjà des cartes de recettes dans le DOM
+          // Utilisation d'un compteur pour vérifier si la recette a déjà été injectée dans le DOM
+          let score = 0;
           for (let index = 0; index < mainSection.children.length; index++) {
-            const element = mainSection.children[index];
-            console.log(element);
-            if (
-              recipe.getAttribute('data-id') == element.getAttribute('data-id')
-            ) {
-              console.log(`ce ${element} est un doublon`);
-            } else {
+            // Boucle sur chacune des cartes de recettes déjà ajoutées et incrémentation du score pour détecter les doublons
+            const child = mainSection.children[index];
+            if (child.getAttribute('data-id') == recipe.id) {
+              score++;
             }
           }
-        } else {
-          injectCard(recipe);
+          if (score == 0) {
+            // Si il n'y a pas de doublons et que le score est toujours à 0, j'injecte la carte de la recette
+            injectCard(recipe);
+            score = 0;
+          }
         }
+      } else {
+        invalidSearch();
       }
       i++;
     });
+  } else {
+    clearContent();
   }
 }
 
@@ -222,23 +235,36 @@ function injectCard(recipe) {
   mainSection.appendChild(createCard);
 }
 
-async function beginFiltering(type, e) {
-  if (e.target.value.length >= 3) {
-    const recipes = await getRecipes();
-
-    recipes.forEach(async (recipe) => {
-      recipe.ingredients.forEach((element) => {
-        IngredientsArray.push(element.ingredient);
-      });
-      AppliancesArray.push(recipe.appliance);
-      recipe.ustensils.forEach((element) => {
-        UstensilsArray.push(element);
-      });
-    });
-    const filteredResult = createFilteredArray(type);
-    console.log(filtreTexte(filteredResult, e.target.value));
+function invalidSearch() {
+  if (document.querySelector('#invalid-search')) {
+    mainContainer.removeChild(row);
+  } else if (mainContainer.children[0].children.length == 0) {
+    let row = document.createElement('div');
+    row.classList.add('row', 'justify-content-center', 'text-danger');
+    row.setAttribute('id', 'invalid-search');
+    row.innerText =
+      'Aucune recette ne correspond à votre critère… vous pouvez chercher « tarte aux pommes », « poisson », etc';
+    mainContainer.appendChild(row);
   }
 }
+
+// async function beginFiltering(type, e) {
+//   if (e.target.value.length >= 3) {
+//     const recipes = await getRecipes();
+
+//     recipes.forEach(async (recipe) => {
+//       recipe.ingredients.forEach((element) => {
+//         IngredientsArray.push(element.ingredient);
+//       });
+//       AppliancesArray.push(recipe.appliance);
+//       recipe.ustensils.forEach((element) => {
+//         UstensilsArray.push(element);
+//       });
+//     });
+//     const filteredResult = createFilteredArray(type);
+//     console.log(filtreTexte(filteredResult, e.target.value));
+//   }
+// }
 
 // Fonction qui filtre l'input de l'utilisateur et renvoie les données correspondantes
 function filtreTexte(arr, requete) {
@@ -264,6 +290,11 @@ function getTargetGenealogy(e) {
   e.target.previousElementSibling.innerText = capitalizeFirstLetter(
     e.target.previousElementSibling.id
   );
+}
+
+// Fonction pour effacer le contenu des recettes sur la page
+function clearContent() {
+  mainSection.innerText = '';
 }
 
 // Initialisation de la page

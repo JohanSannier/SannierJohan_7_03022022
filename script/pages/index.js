@@ -4,6 +4,7 @@ const colBtnUstensil = document.querySelector('#col-btn-ustensil');
 const searchbar = document.querySelector('#searchbar');
 const mainSection = document.getElementById('main-section');
 const mainContainer = document.querySelector('#main-container');
+const invalidSearchInput = document.querySelector('#invalid-search');
 const IngredientsArray = [];
 const AppliancesArray = [];
 const UstensilsArray = [];
@@ -229,22 +230,22 @@ async function mainFilter() {
   }
 }
 
+// Fonction pour injecter une carte de recette dans le DOM
 function injectCard(recipe) {
   const cardData = recipeFactory(recipe);
   const createCard = cardData.getRecipeCard();
   mainSection.appendChild(createCard);
 }
 
+// Fonction qui affiche un message d'erreur à l'utilisateur en cas de critères de recherche invalides
 function invalidSearch() {
-  if (document.querySelector('#invalid-search')) {
-    mainContainer.removeChild(row);
-  } else if (mainContainer.children[0].children.length == 0) {
-    let row = document.createElement('div');
-    row.classList.add('row', 'justify-content-center', 'text-danger');
-    row.setAttribute('id', 'invalid-search');
-    row.innerText =
-      'Aucune recette ne correspond à votre critère… vous pouvez chercher « tarte aux pommes », « poisson », etc';
-    mainContainer.appendChild(row);
+  if (mainSection.children.length == 0) {
+    invalidSearchInput.classList.replace('d-none', 'd-inline');
+  } else if (
+    invalidSearchInput.classList.contains('d-inline') &&
+    mainSection.children.length != 0
+  ) {
+    invalidSearchInput.classList.replace('d-inline', 'd-none');
   }
 }
 
@@ -267,6 +268,7 @@ function invalidSearch() {
 // }
 
 // Fonction qui filtre l'input de l'utilisateur et renvoie les données correspondantes
+
 function filtreTexte(arr, requete) {
   return arr.filter(
     (el) => el.toLowerCase().indexOf(requete.toLowerCase()) !== -1

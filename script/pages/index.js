@@ -5,9 +5,9 @@ const searchbar = document.querySelector('#searchbar');
 const mainSection = document.getElementById('main-section');
 const mainContainer = document.querySelector('#main-container');
 const invalidSearchInput = document.querySelector('#invalid-search');
-const IngredientsArray = [];
-const AppliancesArray = [];
-const UstensilsArray = [];
+let IngredientsArray = [];
+let AppliancesArray = [];
+let UstensilsArray = [];
 
 async function getRecipes() {
   let url = '../data/recipes.json';
@@ -217,6 +217,7 @@ async function mainFilter() {
           if (score == 0) {
             // Si il n'y a pas de doublons et que le score est toujours à 0, j'injecte la carte de la recette
             injectCard(recipe);
+            populateArray(recipe);
             score = 0;
           }
         }
@@ -249,6 +250,22 @@ function invalidSearch() {
   }
 }
 
+function populateArray(recipe) {
+  recipe.ingredients.forEach((ingredient) => {
+    if (IngredientsArray.indexOf(ingredient.ingredient) == -1) {
+      IngredientsArray.push(ingredient.ingredient);
+    }
+  });
+  recipe.ustensils.forEach((ustensil) => {
+    if (UstensilsArray.indexOf(ustensil) == -1) {
+      UstensilsArray.push(ustensil);
+    }
+  });
+  if (AppliancesArray.indexOf(recipe.appliance) == -1) {
+    AppliancesArray.push(recipe.appliance);
+  }
+}
+
 // async function beginFiltering(type, e) {
 //   if (e.target.value.length >= 3) {
 //     const recipes = await getRecipes();
@@ -268,7 +285,6 @@ function invalidSearch() {
 // }
 
 // Fonction qui filtre l'input de l'utilisateur et renvoie les données correspondantes
-
 function filtreTexte(arr, requete) {
   return arr.filter(
     (el) => el.toLowerCase().indexOf(requete.toLowerCase()) !== -1
@@ -297,6 +313,9 @@ function getTargetGenealogy(e) {
 // Fonction pour effacer le contenu des recettes sur la page
 function clearContent() {
   mainSection.innerText = '';
+  IngredientsArray = [];
+  UstensilsArray = [];
+  AppliancesArray = [];
 }
 
 // Initialisation de la page

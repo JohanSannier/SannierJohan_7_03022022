@@ -44,64 +44,26 @@ function getInputFilters(type, color) {
   type.appendChild(input);
 }
 
-// async function createContainerFilter(parent, type, color) {
-//   let container = document.createElement('div');
-//   container.setAttribute('id', `container-${type}`);
-//   container.style.width = '100%';
-//   container.style.height = '40vh';
-//   container.style.overflow = 'scroll';
-//   container.classList.add(`bg-${color}`);
-//   let list = document.createElement('ul');
-//   list.classList.add('main-ul', 'd-flex', 'flex-wrap');
-//   list.classList.add('list-unstyled');
-//   const recipes = await getRecipes();
+async function createContainerFilter(parent, type, color, array) {
+  let container = document.createElement('div');
+  container.setAttribute('id', `container-${type}`);
+  container.style.width = '100%';
+  container.classList.add(`bg-${color}`);
+  let list = document.createElement('ul');
+  list.classList.add('main-ul', 'd-flex', 'flex-wrap');
+  list.classList.add('list-unstyled');
 
-//   recipes.forEach(async (recipe) => {
-//     recipe.ingredients.forEach((element) => {
-//       IngredientsArray.push(element.ingredient);
-//     });
-//     AppliancesArray.push(recipe.appliance);
-//     recipe.ustensils.forEach((element) => {
-//       UstensilsArray.push(element);
-//     });
-//   });
+  array.forEach((element) => {
+    let liste = document.createElement('li');
+    liste.classList.add('main-list', 'w-33');
+    liste.innerText = element;
+    list.appendChild(liste);
+  });
+  parent.appendChild(container);
+  container.appendChild(list);
+}
 
-//   const array = createFilteredArray(type);
-//   array.forEach((element) => {
-//     let liste = document.createElement('li');
-//     liste.classList.add('main-list', 'w-33');
-//     liste.innerText = element;
-//     list.appendChild(liste);
-//   });
-//   parent.appendChild(container);
-//   container.appendChild(list);
-// }
-
-// Création de la fonction qui récupère les ingrédients, appareils et ustensils et les classe dans un nouveau tableau sans doublon
-// function createFilteredArray(type) {
-//   switch (type) {
-//     case 'ingredients':
-//       const filteredIngredientsArray = IngredientsArray.filter(
-//         (element, pos) => IngredientsArray.indexOf(element) == pos
-//       );
-//       return filteredIngredientsArray;
-//     case 'appliance':
-//       const filteredAppliancesArray = AppliancesArray.filter(
-//         (element, pos) => AppliancesArray.indexOf(element) == pos
-//       );
-//       return filteredAppliancesArray;
-//     case 'ustensil':
-//       const filteredUstensilsArray = UstensilsArray.filter(
-//         (element, pos) => UstensilsArray.indexOf(element) == pos
-//       );
-//       return filteredUstensilsArray;
-
-//     default:
-//       break;
-//   }
-// }
-
-// Gestion des évènements de création des filtres au clic sur les boutons de filtres
+// Gestion des évènements de création des filtres au clic sur les boutons de filtres avancés
 window.addEventListener('click', (e) => {
   switch (e.target.id) {
     case 'ingredients':
@@ -116,7 +78,8 @@ window.addEventListener('click', (e) => {
         createContainerFilter(
           colBtnIngredient,
           e.target.previousElementSibling.id,
-          'primary'
+          'primary',
+          IngredientsArray
         );
       }
       break;
@@ -132,7 +95,8 @@ window.addEventListener('click', (e) => {
         createContainerFilter(
           colBtnAppliance,
           e.target.previousElementSibling.id,
-          'success'
+          'success',
+          AppliancesArray
         );
       }
       break;
@@ -148,7 +112,8 @@ window.addEventListener('click', (e) => {
         createContainerFilter(
           colBtnUstensil,
           e.target.previousElementSibling.id,
-          'danger'
+          'danger',
+          UstensilsArray
         );
       }
       break;

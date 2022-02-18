@@ -33,3 +33,12 @@
 .w-33 {
   width: 33%;
 }
+
+.relative-pos {
+  position: relative;
+}
+
+.advanced-filters {
+  position: absolute;
+  z-index: 3;
+}

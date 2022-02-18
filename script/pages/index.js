@@ -47,8 +47,8 @@ function getInputFilters(type, color) {
 async function createContainerFilter(parent, type, color, array) {
   let container = document.createElement('div');
   container.setAttribute('id', `container-${type}`);
-  container.style.width = '100%';
-  container.classList.add(`bg-${color}`);
+  container.style.width = '40rem';
+  container.classList.add(`bg-${color}`, 'advanced-filters');
   let list = document.createElement('ul');
   list.classList.add('main-ul', 'd-flex', 'flex-wrap');
   list.classList.add('list-unstyled');

@@ -1,4 +1,5 @@
 const colBtnIngredient = document.querySelector('#col-btn-ingredients');
+const containerIngredients = document.querySelector('#container-ingredients');
 const colBtnAppliance = document.querySelector('#col-btn-appliance');
 const colBtnUstensil = document.querySelector('#col-btn-ustensil');
 const searchbar = document.querySelector('#searchbar');
@@ -44,23 +45,34 @@ function getInputFilters(type, color) {
   type.appendChild(input);
 }
 
-async function createContainerFilter(parent, type, color, array) {
-  let container = document.createElement('div');
-  container.setAttribute('id', `container-${type}`);
-  container.style.width = '40rem';
-  container.classList.add(`bg-${color}`, 'advanced-filters');
-  let list = document.createElement('ul');
-  list.classList.add('main-ul', 'd-flex', 'flex-wrap');
-  list.classList.add('list-unstyled');
+// async function createContainerFilter(parent, type, color, array) {
+//   let container = document.createElement('div');
+//   container.setAttribute('id', `container-${type}`);
+//   container.style.width = '40rem';
+//   container.classList.add(`bg-${color}`, 'advanced-filters');
+//   let list = document.createElement('ul');
+//   list.classList.add('main-ul', 'd-flex', 'flex-wrap');
+//   list.classList.add('list-unstyled');
 
-  array.forEach((element) => {
+//   array.forEach((element) => {
+//     let liste = document.createElement('li');
+//     liste.classList.add('main-list', 'w-33');
+//     liste.innerText = element;
+//     list.appendChild(liste);
+//   });
+//   parent.appendChild(container);
+//   container.appendChild(list);
+// }
+
+async function injectAdvancedFilters(array, parent) {
+  parent.firstChild.innerHTML = '';
+  for (let index = 0; index < array.length; index++) {
+    const element = await array[index];
     let liste = document.createElement('li');
     liste.classList.add('main-list', 'w-33');
     liste.innerText = element;
-    list.appendChild(liste);
-  });
-  parent.appendChild(container);
-  container.appendChild(list);
+    parent.firstChild.appendChild(liste);
+  }
 }
 
 // Gestion des évènements de création des filtres au clic sur les boutons de filtres avancés
@@ -68,20 +80,9 @@ window.addEventListener('click', (e) => {
   switch (e.target.id) {
     case 'ingredients':
       getInputFilters(e.target, 'primary');
-      // createContainerFilter(colBtnIngredient, e.target.id, 'primary');
       break;
     case 'chevron-ingredients':
-      if (e.target.parentNode.nextElementSibling) {
-        getTargetGenealogy(e);
-      } else {
-        getInputFilters(e.target.previousElementSibling, 'primary');
-        createContainerFilter(
-          colBtnIngredient,
-          e.target.previousElementSibling.id,
-          'primary',
-          IngredientsArray
-        );
-      }
+      changeDisplay(containerIngredients);
       break;
     case 'appliance':
       getInputFilters(e.target, 'success');
@@ -126,6 +127,7 @@ window.addEventListener('input', (e) => {
   switch (e.target.id) {
     case 'searchbar':
       mainFilter();
+      injectAdvancedFilters(IngredientsArray, containerIngredients);
       break;
     case 'input-primary':
       beginFiltering('ingredients', e);
@@ -180,7 +182,7 @@ async function mainFilter() {
             }
           }
           if (score == 0) {
-            // Si il n'y a pas de doublons et que le score est toujours à 0, j'injecte la carte de la recette
+            // Si il n'y a pas de doublons et que le score est toujours à 0, j'injecte la carte de la recette et j'ajoute les données aux filtres avancés
             injectCard(recipe);
             populateArray(recipe);
             score = 0;
@@ -231,23 +233,7 @@ function populateArray(recipe) {
   }
 }
 
-// async function beginFiltering(type, e) {
-//   if (e.target.value.length >= 3) {
-//     const recipes = await getRecipes();
-
-//     recipes.forEach(async (recipe) => {
-//       recipe.ingredients.forEach((element) => {
-//         IngredientsArray.push(element.ingredient);
-//       });
-//       AppliancesArray.push(recipe.appliance);
-//       recipe.ustensils.forEach((element) => {
-//         UstensilsArray.push(element);
-//       });
-//     });
-//     const filteredResult = createFilteredArray(type);
-//     console.log(filtreTexte(filteredResult, e.target.value));
-//   }
-// }
+async function advancedFiltering() {}
 
 // Fonction qui filtre l'input de l'utilisateur et renvoie les données correspondantes
 function filtreTexte(arr, requete) {
@@ -273,6 +259,15 @@ function getTargetGenealogy(e) {
   e.target.previousElementSibling.innerText = capitalizeFirstLetter(
     e.target.previousElementSibling.id
   );
+}
+
+// Fonction pour faire apparaître les filtres avancés
+function changeDisplay(target) {
+  if (target.classList.contains('opacity-0')) {
+    target.classList.remove('opacity-0');
+  } else {
+    target.classList.add('opacity-0');
+  }
 }
 
 // Fonction pour effacer le contenu des recettes sur la page

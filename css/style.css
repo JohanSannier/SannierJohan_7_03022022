@@ -41,4 +41,5 @@
 .advanced-filters {
   position: absolute;
   z-index: 3;
+  width: 40rem;
 }

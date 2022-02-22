@@ -43,3 +43,7 @@
   z-index: 3;
   width: 40rem;
 }
+
+.bi-x-circle {
+  cursor: pointer;
+}

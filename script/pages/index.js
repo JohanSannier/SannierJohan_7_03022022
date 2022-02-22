@@ -2,6 +2,7 @@ const colBtnIngredient = document.querySelector('#col-btn-ingredients');
 const containerIngredients = document.querySelector('#container-ingredients');
 const colBtnAppliance = document.querySelector('#col-btn-appliance');
 const colBtnUstensil = document.querySelector('#col-btn-ustensil');
+const tagsContainer = document.querySelector('#tags-container');
 const searchbar = document.querySelector('#searchbar');
 const mainSection = document.getElementById('main-section');
 const mainContainer = document.querySelector('#main-container');
@@ -121,6 +122,7 @@ window.addEventListener('click', (e) => {
     default:
       break;
   }
+  advancedFiltering(e, 'primary');
 });
 
 window.addEventListener('input', (e) => {
@@ -233,7 +235,29 @@ function populateArray(recipe) {
   }
 }
 
-async function advancedFiltering() {}
+async function advancedFiltering(e, color) {
+  if (e.target.classList.contains('main-list')) {
+    let tagWrapper = document.createElement('div');
+    tagWrapper.classList.add(
+      'tag-wrapper',
+      'd-inline-flex',
+      'me-4',
+      `bg-${color}`,
+      'p-2',
+      'rounded',
+      'text-white',
+      'mb-3'
+    );
+    let tag = document.createElement('span');
+    tag.classList.add('me-3', 'tag');
+    tag.innerText = e.target.innerText;
+    let deleteTag = document.createElement('i');
+    deleteTag.classList.add('bi', 'bi-x-circle');
+    tagWrapper.appendChild(tag);
+    tagWrapper.appendChild(deleteTag);
+    tagsContainer.appendChild(tagWrapper);
+  }
+}
 
 // Fonction qui filtre l'input de l'utilisateur et renvoie les données correspondantes
 function filtreTexte(arr, requete) {

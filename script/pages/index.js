@@ -122,6 +122,14 @@ window.addEventListener('click', (e) => {
     default:
       break;
   }
+  switch (e.target.classList.value) {
+    case 'bi bi-x-circle':
+      tagsContainer.removeChild(e.target.parentNode);
+      break;
+
+    default:
+      break;
+  }
   advancedFiltering(e, 'primary');
 });
 
@@ -129,6 +137,7 @@ window.addEventListener('input', (e) => {
   switch (e.target.id) {
     case 'searchbar':
       mainFilter();
+      // A faire : Mettre la fonction inject 3 fois avec tableau différent à chaque fois - créer la div dans le HTML et déclarer la constante qui relie l'id de la nouvelle div
       injectAdvancedFilters(IngredientsArray, containerIngredients);
       break;
     case 'input-primary':
@@ -235,28 +244,49 @@ function populateArray(recipe) {
   }
 }
 
+// Fonction pour créer les tags sur les filtres
 async function advancedFiltering(e, color) {
   if (e.target.classList.contains('main-list')) {
-    let tagWrapper = document.createElement('div');
-    tagWrapper.classList.add(
-      'tag-wrapper',
-      'd-inline-flex',
-      'me-4',
-      `bg-${color}`,
-      'p-2',
-      'rounded',
-      'text-white',
-      'mb-3'
-    );
-    let tag = document.createElement('span');
-    tag.classList.add('me-3', 'tag');
-    tag.innerText = e.target.innerText;
-    let deleteTag = document.createElement('i');
-    deleteTag.classList.add('bi', 'bi-x-circle');
-    tagWrapper.appendChild(tag);
-    tagWrapper.appendChild(deleteTag);
-    tagsContainer.appendChild(tagWrapper);
+    // Si il n'y a aucun tag sélectionné je créé un tag
+    if (tagsContainer.children.length == 0) {
+      createTag(e, color);
+    } else {
+      // Sinon, pour chaque tag sélectionné, je vérifie si le le tag sur lequel j'ai cliqué est déjà affiché
+      let scoreTag = 0;
+      for (let index = 0; index < tagsContainer.children.length; index++) {
+        const element = tagsContainer.children[index];
+        if (e.target.innerText == element.firstChild.innerText) {
+          scoreTag++;
+        }
+      }
+      if (scoreTag == 0) {
+        createTag(e, color);
+      }
+    }
   }
+}
+
+// Fonction qui créé le tag du filtre
+function createTag(e, color) {
+  let tagWrapper = document.createElement('div');
+  tagWrapper.classList.add(
+    'tag-wrapper',
+    'd-inline-flex',
+    'me-4',
+    `bg-${color}`,
+    'p-2',
+    'rounded',
+    'text-white',
+    'mb-3'
+  );
+  let tag = document.createElement('span');
+  tag.classList.add('me-3', 'tag');
+  tag.innerText = e.target.innerText;
+  let deleteTag = document.createElement('i');
+  deleteTag.classList.add('bi', 'bi-x-circle');
+  tagWrapper.appendChild(tag);
+  tagWrapper.appendChild(deleteTag);
+  tagsContainer.appendChild(tagWrapper);
 }
 
 // Fonction qui filtre l'input de l'utilisateur et renvoie les données correspondantes

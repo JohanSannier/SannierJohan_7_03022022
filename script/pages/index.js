@@ -65,12 +65,15 @@ function getInputFilters(type, color) {
 //   container.appendChild(list);
 // }
 
+// Création et injection des items de filtres avancés
 async function injectAdvancedFilters(array, parent) {
   parent.firstChild.innerHTML = '';
+  let type = parent.className.substr(20);
   for (let index = 0; index < array.length; index++) {
     const element = await array[index];
     let liste = document.createElement('li');
     liste.classList.add('main-list', 'w-33');
+    liste.setAttribute('data-color', type);
     liste.innerText = element;
     parent.firstChild.appendChild(liste);
   }
@@ -130,7 +133,7 @@ window.addEventListener('click', (e) => {
     default:
       break;
   }
-  advancedFiltering(e, 'primary');
+  advancedFiltering(e);
 });
 
 window.addEventListener('input', (e) => {
@@ -245,7 +248,22 @@ function populateArray(recipe) {
 }
 
 // Fonction pour créer les tags sur les filtres
-async function advancedFiltering(e, color) {
+async function advancedFiltering(e) {
+  // Je récupère l'attribut data-color pour obtenir le style correct du tag si c'est un ingrédient, appareil ou un ustensil
+  switch (e.target.getAttribute('data-color')) {
+    case 'primary':
+      color = 'primary';
+      break;
+    case 'success':
+      color = 'success';
+      break;
+    case 'danger':
+      color = 'danger';
+      break;
+
+    default:
+      break;
+  }
   if (e.target.classList.contains('main-list')) {
     // Si il n'y a aucun tag sélectionné je créé un tag
     if (tagsContainer.children.length == 0) {
@@ -259,6 +277,7 @@ async function advancedFiltering(e, color) {
           scoreTag++;
         }
       }
+      // Si le score est à 0 et donc que le tag n'a pas été sélectionné avant, je créé le tag
       if (scoreTag == 0) {
         createTag(e, color);
       }

@@ -352,4 +352,4 @@ function clearContent() {
 }
 
 // Initialisation de la page
-// displayRecipes();
+displayRecipes();

@@ -1,8 +1,11 @@
 const colBtnIngredient = document.querySelector('#col-btn-ingredients');
 const containerIngredients = document.querySelector('#container-ingredients');
 const colBtnAppliance = document.querySelector('#col-btn-appliance');
+const containerAppliances = document.querySelector('#container-appliances');
 const colBtnUstensil = document.querySelector('#col-btn-ustensil');
+const containerUstensils = document.querySelector('#container-ustensils');
 const tagsContainer = document.querySelector('#tags-container');
+const filterButtons = document.getElementsByClassName('advanced-filters');
 const searchbar = document.querySelector('#searchbar');
 const mainSection = document.getElementById('main-section');
 const mainContainer = document.querySelector('#main-container');
@@ -90,37 +93,15 @@ window.addEventListener('click', (e) => {
       break;
     case 'appliance':
       getInputFilters(e.target, 'success');
-      // createContainerFilter(colBtnAppliance, e.target.id, 'success');
       break;
     case 'chevron-appliance':
-      if (e.target.parentNode.nextElementSibling) {
-        getTargetGenealogy(e);
-      } else {
-        getInputFilters(e.target.previousElementSibling, 'success');
-        createContainerFilter(
-          colBtnAppliance,
-          e.target.previousElementSibling.id,
-          'success',
-          AppliancesArray
-        );
-      }
+      changeDisplay(containerAppliances);
       break;
     case 'ustensil':
       getInputFilters(e.target, 'danger');
-      // createContainerFilter(colBtnUstensil, e.target.id, 'danger');
       break;
     case 'chevron-ustensil':
-      if (e.target.parentNode.nextElementSibling) {
-        getTargetGenealogy(e);
-      } else {
-        getInputFilters(e.target.previousElementSibling, 'danger');
-        createContainerFilter(
-          colBtnUstensil,
-          e.target.previousElementSibling.id,
-          'danger',
-          UstensilsArray
-        );
-      }
+      changeDisplay(containerUstensils);
       break;
     default:
       break;
@@ -139,9 +120,12 @@ window.addEventListener('click', (e) => {
 window.addEventListener('input', (e) => {
   switch (e.target.id) {
     case 'searchbar':
+      // Fonction qui déclenche le filtre sur la barre principale et qui affiche les résultats correspondant sur la page
       mainFilter();
-      // A faire : Mettre la fonction inject 3 fois avec tableau différent à chaque fois - créer la div dans le HTML et déclarer la constante qui relie l'id de la nouvelle div
+      // Fonction qui appelle les tableaux d'ingrédients, d'appareils et d'ustensils dans les filtres avancés
       injectAdvancedFilters(IngredientsArray, containerIngredients);
+      injectAdvancedFilters(AppliancesArray, containerAppliances);
+      injectAdvancedFilters(UstensilsArray, containerUstensils);
       break;
     case 'input-primary':
       beginFiltering('ingredients', e);
@@ -247,7 +231,7 @@ function populateArray(recipe) {
   }
 }
 
-// Fonction pour créer les tags sur les filtres
+// Fonction pour sélectionner les tags sur les filtres
 async function advancedFiltering(e) {
   // Je récupère l'attribut data-color pour obtenir le style correct du tag si c'est un ingrédient, appareil ou un ustensil
   switch (e.target.getAttribute('data-color')) {
@@ -334,14 +318,30 @@ function getTargetGenealogy(e) {
   );
 }
 
+const totalContainerFilter = [
+  containerIngredients,
+  containerAppliances,
+  containerUstensils,
+];
+
 // Fonction pour faire apparaître les filtres avancés
 function changeDisplay(target) {
-  if (target.classList.contains('opacity-0')) {
-    target.classList.remove('opacity-0');
+  let activeFilter = document.querySelector('.active-filter');
+  if (target.classList.contains('active-filter') && target == activeFilter) {
+    target.classList.remove('active-filter');
+  } else if (
+    totalContainerFilter.some((element) =>
+      element.classList.contains('active-filter')
+    )
+  ) {
+    activeFilter.classList.remove('active-filter');
+    target.classList.add('active-filter');
   } else {
-    target.classList.add('opacity-0');
+    target.classList.add('active-filter');
   }
 }
+
+function changeActiveFilter() {}
 
 // Fonction pour effacer le contenu des recettes sur la page
 function clearContent() {

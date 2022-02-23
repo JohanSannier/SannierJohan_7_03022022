@@ -41,8 +41,6 @@ async function displayRecipes() {
 
 // Création d'un input à l'intérieur du span
 function getInputFilters(type, color) {
-  let chevron = document.querySelector(`#chevron-${type.id}`);
-  chevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
   let input = document.createElement('input');
   input.classList.add('btn', `btn-${color}`);
   const dataName = type.getAttribute('data-name');
@@ -53,25 +51,6 @@ function getInputFilters(type, color) {
   // let parentCol = type.parentNode.parentNode;
   type.appendChild(input);
 }
-
-// async function createContainerFilter(parent, type, color, array) {
-//   let container = document.createElement('div');
-//   container.setAttribute('id', `container-${type}`);
-//   container.style.width = '40rem';
-//   container.classList.add(`bg-${color}`, 'advanced-filters');
-//   let list = document.createElement('ul');
-//   list.classList.add('main-ul', 'd-flex', 'flex-wrap');
-//   list.classList.add('list-unstyled');
-
-//   array.forEach((element) => {
-//     let liste = document.createElement('li');
-//     liste.classList.add('main-list', 'w-33');
-//     liste.innerText = element;
-//     list.appendChild(liste);
-//   });
-//   parent.appendChild(container);
-//   container.appendChild(list);
-// }
 
 // Création et injection des items de filtres avancés
 async function injectAllAdvancedFilters(array, parent) {
@@ -332,17 +311,24 @@ function getTargetGenealogy(e) {
 // Fonction pour faire apparaître les filtres avancés
 function changeDisplay(target) {
   let activeFilter = document.querySelector('.active-filter');
+  let newChevron = target.previousElementSibling.children[1];
+
   if (target.classList.contains('active-filter') && target == activeFilter) {
     target.classList.remove('active-filter');
+    newChevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
   } else if (
     totalContainerFilter.some((element) =>
       element.classList.contains('active-filter')
     )
   ) {
+    let oldChevron = activeFilter.previousElementSibling.children[1];
+    oldChevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
     activeFilter.classList.remove('active-filter');
     target.classList.add('active-filter');
+    newChevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
   } else {
     target.classList.add('active-filter');
+    newChevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
   }
 }
 

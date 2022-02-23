@@ -6,6 +6,11 @@ const colBtnUstensil = document.querySelector('#col-btn-ustensil');
 const containerUstensils = document.querySelector('#container-ustensils');
 const tagsContainer = document.querySelector('#tags-container');
 const filterButtons = document.getElementsByClassName('advanced-filters');
+const totalContainerFilter = [
+  containerIngredients,
+  containerAppliances,
+  containerUstensils,
+];
 const searchbar = document.querySelector('#searchbar');
 const mainSection = document.getElementById('main-section');
 const mainContainer = document.querySelector('#main-container');
@@ -71,12 +76,13 @@ function getInputFilters(type, color) {
 // Création et injection des items de filtres avancés
 async function injectAdvancedFilters(array, parent) {
   parent.firstChild.innerHTML = '';
-  let type = parent.className.substr(20);
+  const type = parent.className.substr(20);
+  const correctType = type.split(' ')[0];
   for (let index = 0; index < array.length; index++) {
     const element = await array[index];
     let liste = document.createElement('li');
     liste.classList.add('main-list', 'w-33');
-    liste.setAttribute('data-color', type);
+    liste.setAttribute('data-color', correctType);
     liste.innerText = element;
     parent.firstChild.appendChild(liste);
   }
@@ -237,7 +243,6 @@ async function advancedFiltering(e) {
   switch (e.target.getAttribute('data-color')) {
     case 'primary':
       color = 'primary';
-      break;
     case 'success':
       color = 'success';
       break;
@@ -248,6 +253,7 @@ async function advancedFiltering(e) {
     default:
       break;
   }
+
   if (e.target.classList.contains('main-list')) {
     // Si il n'y a aucun tag sélectionné je créé un tag
     if (tagsContainer.children.length == 0) {
@@ -318,12 +324,6 @@ function getTargetGenealogy(e) {
   );
 }
 
-const totalContainerFilter = [
-  containerIngredients,
-  containerAppliances,
-  containerUstensils,
-];
-
 // Fonction pour faire apparaître les filtres avancés
 function changeDisplay(target) {
   let activeFilter = document.querySelector('.active-filter');
@@ -340,8 +340,6 @@ function changeDisplay(target) {
     target.classList.add('active-filter');
   }
 }
-
-function changeActiveFilter() {}
 
 // Fonction pour effacer le contenu des recettes sur la page
 function clearContent() {

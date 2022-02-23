@@ -40,7 +40,7 @@
 
 .advanced-filters {
   position: absolute;
-  z-index: 3;
+  z-index: -3;
   width: 40rem;
 }
 
@@ -52,4 +52,5 @@
   opacity: 1 !important;
   border-bottom-left-radius: initial;
   border-bottom-right-radius: initial;
+  z-index: 3;
 }

@@ -183,6 +183,9 @@ async function mainFilter() {
     });
   } else {
     clearContent();
+    if (inputLength == 0) {
+      displayRecipes();
+    }
   }
 }
 

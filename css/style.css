@@ -53,7 +53,10 @@
   position: absolute;
   z-index: -3;
   width: 40rem;
-  /* margin-top: -5px; */
+}
+
+.active-width {
+  width: 40rem;
 }
 
 .bi-x-circle {

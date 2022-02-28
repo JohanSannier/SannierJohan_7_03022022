@@ -372,9 +372,13 @@ function changeDisplay(target) {
   ) {
     let oldChevron = activeFilter.previousElementSibling.children[1];
     oldChevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
-    activeFilter.previousElementSibling.classList.remove('border-fix');
+    activeFilter.previousElementSibling.classList.remove(
+      'border-fix',
+      'active-width'
+    );
+    activeFilter.parentNode.classList.remove('active-width');
     activeFilter.classList.remove('active-filter');
-    target.classList.add('active-filter', 'border-fix');
+    target.classList.add('active-filter');
     btnParent.classList.add('border-fix');
     newChevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
   } else {

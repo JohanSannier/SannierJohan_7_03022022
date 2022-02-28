@@ -15,6 +15,9 @@ const searchbar = document.querySelector('#searchbar');
 const mainSection = document.getElementById('main-section');
 const mainContainer = document.querySelector('#main-container');
 const invalidSearchInput = document.querySelector('#invalid-search');
+const inputAdvancedFilters = document.getElementsByClassName(
+  'input-advanced-filters'
+);
 let IngredientsArray = [];
 let AppliancesArray = [];
 let UstensilsArray = [];
@@ -45,11 +48,55 @@ function getInputFilters(type, color) {
   input.classList.add('btn', `btn-${color}`);
   const dataName = type.getAttribute('data-name');
   input.setAttribute('placeholder', `Rechercher un ${dataName}`);
-  input.classList.add('text-white');
+  input.classList.add('text-white', 'p-0', 'input-advanced-filters');
   input.setAttribute('id', `input-${color}`);
   type.innerText = '';
-  // let parentCol = type.parentNode.parentNode;
   type.appendChild(input);
+  let spanParent = input.parentElement;
+  let btnParent = spanParent.parentElement;
+  btnParent.classList.remove('px-4');
+  input.focus();
+}
+
+function checkInputFilters(e) {
+  // if (inputAdvancedFilters.length == 0) return;
+  let itemsContainer;
+  let nb;
+  switch (e.target.id) {
+    case 'input-primary':
+      itemsContainer = document.getElementById(
+        'container-ingredients'
+      ).firstChild;
+      break;
+    case 'input-success':
+      itemsContainer = document.getElementById(
+        'container-appliances'
+      ).firstChild;
+      break;
+    case 'input-danger':
+      itemsContainer = document.getElementById(
+        'container-ustensils'
+      ).firstChild;
+      break;
+
+    default:
+      break;
+  }
+
+  if (itemsContainer && itemsContainer.children.length != 0) {
+    let value = e.target.value;
+    let items = itemsContainer.childNodes;
+    for (let index = 0; index < items.length; index++) {
+      const element = items[index];
+      let txtValue = element.innerText;
+      let txtValueAlt = lowerCaseFirstLetter(txtValue);
+      if (txtValue.indexOf(value) > -1 || txtValueAlt.indexOf(value) > -1) {
+        element.style.display = '';
+      } else {
+        element.style.display = 'none';
+      }
+    }
+  }
 }
 
 // Création et injection des items de filtres avancés
@@ -117,19 +164,8 @@ window.addEventListener('input', (e) => {
         [containerIngredients, containerAppliances, containerUstensils]
       );
       break;
-    case 'input-primary':
-      beginFiltering('ingredients', e);
-      break;
-    case 'input-success':
-      beginFiltering('appliance', e);
-      break;
-    case 'input-danger':
-      beginFiltering('ustensil', e);
-      break;
-
-    default:
-      break;
   }
+  checkInputFilters(e);
 });
 
 // Fonction pour la recherche principale
@@ -297,6 +333,11 @@ function capitalizeFirstLetter(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+// Fonction pour mettre en minuscule la première lettre d'une chaine de caractère
+function lowerCaseFirstLetter(str) {
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
 // Fonction pour permettre d'ajouter ou de supprimer l'input des filtres au clic sur le chevron du bouton
 function getTargetGenealogy(e) {
   let displayedContainer = document.querySelector(
@@ -315,12 +356,14 @@ function getTargetGenealogy(e) {
 function changeDisplay(target) {
   let activeFilter = document.querySelector('.active-filter');
   let newChevron = target.previousElementSibling.children[1];
+  let btnParent = target.previousElementSibling;
   if (target.firstChild.children.length == 0) {
     alert('Veuillez effectuer une recherche correcte au préalable');
     return;
   }
   if (target.classList.contains('active-filter') && target == activeFilter) {
     target.classList.remove('active-filter');
+    btnParent.classList.remove('border-fix');
     newChevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
   } else if (
     totalContainerFilter.some((element) =>
@@ -329,11 +372,14 @@ function changeDisplay(target) {
   ) {
     let oldChevron = activeFilter.previousElementSibling.children[1];
     oldChevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
+    activeFilter.previousElementSibling.classList.remove('border-fix');
     activeFilter.classList.remove('active-filter');
-    target.classList.add('active-filter');
+    target.classList.add('active-filter', 'border-fix');
+    btnParent.classList.add('border-fix');
     newChevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
   } else {
     target.classList.add('active-filter');
+    btnParent.classList.add('border-fix');
     newChevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
   }
 }

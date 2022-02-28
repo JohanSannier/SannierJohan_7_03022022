@@ -53,6 +53,7 @@
   position: absolute;
   z-index: -3;
   width: 40rem;
+  /* margin-top: -5px; */
 }
 
 .bi-x-circle {
@@ -61,7 +62,10 @@
 
 .active-filter {
   opacity: 1 !important;
-  border-bottom-left-radius: initial;
-  border-bottom-right-radius: initial;
   z-index: 3;
+}
+
+.border-fix {
+  border-bottom-left-radius: initial !important;
+  border-bottom-right-radius: initial !important;
 }

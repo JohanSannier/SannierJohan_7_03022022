@@ -24,6 +24,7 @@ let UstensilsArray = [];
 let onLoadIngredientsArray = [];
 let onLoadAppliancesArray = [];
 let onLoadUstensilsArray = [];
+let allRecipes = [];
 
 async function getRecipes() {
   let url = '../data/recipes.json';
@@ -174,6 +175,31 @@ window.addEventListener('input', (e) => {
   checkInputFilters(e);
 });
 
+function checkTags() {
+  let allTags = document.getElementsByClassName('tag');
+  console.log(allTags);
+  [...allTags].forEach((tag) => {
+    // Je dois filtrer les cartes en cherchant le texte du tag dans un des 3 tableaux selon la couleur du tag
+    let tagColor = tag.getAttribute('data-color');
+    let targetSearch;
+    // Avant d'être injecté les recipe sont des objets donc il faut que je les récupère pour ensuite chercher dans les ingrédients etc en fonction de la couleur donc il me faut un tableau des objets des cartes actuellement affichées sur la page
+    switch (tagColor) {
+      case 'primary':
+        console.log('ok');
+        console.log();
+        break;
+      case 'success':
+        console.log('2');
+        break;
+      case 'danger':
+        break;
+
+      default:
+        break;
+    }
+  });
+}
+
 // Fonction pour la recherche principale
 async function mainFilter() {
   let inputLength = searchbar.value.length;
@@ -200,6 +226,7 @@ async function mainFilter() {
         // Si la carte n'est pas déjà injectée dans le DOM, je l'injecte dans le DOM
         if (mainSection.children.length == 0) {
           injectCard(recipe);
+          populateRecipeArray(recipe);
         } else {
           // Si il y a déjà des cartes de recettes dans le DOM
           // Utilisation d'un compteur pour vérifier si la recette a déjà été injectée dans le DOM
@@ -212,9 +239,10 @@ async function mainFilter() {
             }
           }
           if (score == 0) {
-            // Si il n'y a pas de doublons et que le score est toujours à 0, j'injecte la carte de la recette et j'ajoute les données aux filtres avancés
+            // Si il n'y a pas de doublons et que le score est toujours à 0, j'injecte la carte de la recette et j'ajoute les données aux filtres avancés avant de remettre à zéro le score
             injectCard(recipe);
             populateArray(recipe);
+            populateRecipeArray(recipe);
             score = 0;
           }
         }
@@ -264,6 +292,24 @@ function populateArray(recipe) {
   });
   if (AppliancesArray.indexOf(recipe.appliance) == -1) {
     AppliancesArray.push(recipe.appliance);
+  }
+}
+
+// Fonction pour récupérer les objets des recettes injectées dans le DOM
+function populateRecipeArray(recipe) {
+  let score = 0;
+  if (allRecipes.length == 0) {
+    allRecipes.push(recipe);
+  }
+  if (allRecipes.length >= 1) {
+    allRecipes.forEach((element) => {
+      if (element.id == recipe.id) {
+        score++;
+      }
+    });
+  }
+  if (score == 0) {
+    allRecipes.push(recipe);
   }
 }
 
@@ -350,6 +396,7 @@ function createTag(e) {
   );
   let tag = document.createElement('span');
   tag.classList.add('me-3', 'tag');
+  tag.setAttribute('data-color', color);
   tag.innerText = e.target.innerText;
   let deleteTag = document.createElement('i');
   deleteTag.classList.add('bi', 'bi-x-circle');
@@ -431,6 +478,7 @@ function clearContent() {
   IngredientsArray = [];
   UstensilsArray = [];
   AppliancesArray = [];
+  allRecipes = [];
 }
 
 // Initialisation de la page

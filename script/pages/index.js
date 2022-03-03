@@ -18,6 +18,7 @@ const invalidSearchInput = document.querySelector('#invalid-search');
 const inputAdvancedFilters = document.getElementsByClassName(
   'input-advanced-filters'
 );
+let allTags = document.getElementsByClassName('tag');
 let IngredientsArray = [];
 let AppliancesArray = [];
 let UstensilsArray = [];
@@ -176,8 +177,6 @@ window.addEventListener('input', (e) => {
 });
 
 function checkTags() {
-  let allTags = document.getElementsByClassName('tag');
-  console.log(allTags);
   [...allTags].forEach((tag) => {
     // Je dois filtrer les cartes en cherchant le texte du tag dans un des 3 tableaux selon la couleur du tag
     let tagColor = tag.getAttribute('data-color');
@@ -185,18 +184,19 @@ function checkTags() {
     // Avant d'être injecté les recipe sont des objets donc il faut que je les récupère pour ensuite chercher dans les ingrédients etc en fonction de la couleur donc il me faut un tableau des objets des cartes actuellement affichées sur la page
     switch (tagColor) {
       case 'primary':
-        console.log('ok');
-        console.log();
+        targetSearch = 'primary';
         break;
       case 'success':
-        console.log('2');
+        targetSearch = 'success';
         break;
       case 'danger':
+        targetSearch = 'danger';
         break;
 
       default:
         break;
     }
+    console.log(targetSearch);
   });
 }
 
@@ -420,20 +420,6 @@ function capitalizeFirstLetter(str) {
 // Fonction pour mettre en minuscule la première lettre d'une chaine de caractère
 function lowerCaseFirstLetter(str) {
   return str.charAt(0).toLowerCase() + str.slice(1);
-}
-
-// Fonction pour permettre d'ajouter ou de supprimer l'input des filtres au clic sur le chevron du bouton
-function getTargetGenealogy(e) {
-  let displayedContainer = document.querySelector(
-    `#container-${e.target.previousElementSibling.id}`
-  );
-  e.target.parentNode.parentNode.removeChild(displayedContainer);
-  e.target.previousElementSibling.removeChild(
-    e.target.previousElementSibling.firstChild
-  );
-  e.target.previousElementSibling.innerText = capitalizeFirstLetter(
-    e.target.previousElementSibling.id
-  );
 }
 
 // Fonction pour faire apparaître les filtres avancés

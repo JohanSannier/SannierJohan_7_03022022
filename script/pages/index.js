@@ -162,7 +162,8 @@ window.addEventListener('click', (e) => {
   advancedFiltering(e);
   // J'appelle la fonction de filtre tag uniquement si il y a au moins un tag sélectionné
   if (allTags.length != 0) {
-    tagFilter();
+    // tagFilter();
+    filter2();
   }
 });
 
@@ -170,7 +171,8 @@ window.addEventListener('input', (e) => {
   switch (e.target.id) {
     case 'searchbar':
       // Fonction qui déclenche le filtre sur la barre principale et qui affiche les résultats correspondant sur la page
-      mainFilter();
+      // mainFilter();
+      // filter2(e);
       // Fonction qui appelle les tableaux d'ingrédients, d'appareils et d'ustensils dans les filtres avancés
       injectAllAdvancedFilters(
         [IngredientsArray, AppliancesArray, UstensilsArray],
@@ -206,6 +208,59 @@ function injectFilteredRecipe(recipe) {
       score = 0;
     }
   }
+}
+
+// Fonction test filter
+function filter2() {
+  [...allTags].forEach((tag) => {
+    let tagColor = tag.getAttribute('data-color');
+    let result = [];
+    switch (tagColor) {
+      case 'primary':
+        result = allRecipes.filter((recipe) =>
+          recipe.ingredients.some((ingr) =>
+            ingr.ingredient.toLowerCase().includes(tag.innerText.toLowerCase())
+          )
+        );
+        break;
+      case 'success':
+        result = allRecipes.filter(
+          (recipe) =>
+            recipe.appliance.toLowerCase() == tag.innerText.toLowerCase()
+        );
+        break;
+      case 'danger':
+        result = allRecipes.filter((recipe) =>
+          recipe.ustensils.some((ustensil) =>
+            ustensil.toLowerCase().includes(tag.innerText.toLowerCase())
+          )
+        );
+        break;
+
+      default:
+        break;
+    }
+    console.log(result);
+    result.forEach((recipe) => {
+      injectFilteredRecipe(recipe);
+    });
+  });
+
+  // const Value = e.target.value;
+  // const ApplianceRes = allRecipes.filter(
+  //   (recipe) => recipe.appliance.toLowerCase() == Value.toLowerCase()
+  // );
+  // const UstensilRes = allRecipes.filter((recipe) =>
+  //   recipe.ustensils.some((ustensil) =>
+  //     ustensil.toLowerCase().includes(Value.toLowerCase())
+  //   )
+  // );
+  // const IngredientRes = allRecipes.filter((recipe) =>
+  //   recipe.ingredients.some((ingr) =>
+  //     ingr.ingredient.toLowerCase().includes(Value.toLowerCase())
+  //   )
+  // );
+  // console.log([ApplianceRes, UstensilRes, IngredientRes]);
 }
 
 async function tagFilter() {

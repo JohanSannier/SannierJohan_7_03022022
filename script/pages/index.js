@@ -44,6 +44,7 @@ async function displayRecipes() {
     const cardData = recipeFactory(recipe);
     const createCard = cardData.getRecipeCard();
     mainSection.appendChild(createCard);
+    allRecipes.push(recipe);
   });
 }
 
@@ -159,6 +160,10 @@ window.addEventListener('click', (e) => {
       break;
   }
   advancedFiltering(e);
+  // J'appelle la fonction de filtre tag uniquement si il y a au moins un tag sélectionné
+  if (allTags.length != 0) {
+    tagFilter();
+  }
 });
 
 window.addEventListener('input', (e) => {
@@ -176,28 +181,85 @@ window.addEventListener('input', (e) => {
   checkInputFilters(e);
 });
 
-function checkTags() {
+// Fonction utilisée pour injecter les recettes filtrées dans le DOM
+function injectFilteredRecipe(recipe) {
+  // Si la carte n'est pas déjà injectée dans le DOM, je l'injecte dans le DOM
+  if (mainSection.children.length == 0) {
+    injectCard(recipe);
+    populateRecipeArray(recipe);
+  } else {
+    // Si il y a déjà des cartes de recettes dans le DOM
+    // Utilisation d'un compteur pour vérifier si la recette a déjà été injectée dans le DOM
+    let score = 0;
+    for (let index = 0; index < mainSection.children.length; index++) {
+      // Boucle sur chacune des cartes de recettes déjà ajoutées et incrémentation du score pour détecter les doublons
+      const child = mainSection.children[index];
+      if (child.getAttribute('data-id') == recipe.id) {
+        score++;
+      }
+    }
+    if (score == 0) {
+      // Si il n'y a pas de doublons et que le score est toujours à 0, j'injecte la carte de la recette et j'ajoute les données aux filtres avancés avant de remettre à zéro le score
+      injectCard(recipe);
+      populateArray(recipe);
+      populateRecipeArray(recipe);
+      score = 0;
+    }
+  }
+}
+
+async function tagFilter() {
+  let recipes = await getRecipes();
+  clearContent();
   [...allTags].forEach((tag) => {
     // Je dois filtrer les cartes en cherchant le texte du tag dans un des 3 tableaux selon la couleur du tag
     let tagColor = tag.getAttribute('data-color');
-    let targetSearch;
+    let targetSearch = '';
     // Avant d'être injecté les recipe sont des objets donc il faut que je les récupère pour ensuite chercher dans les ingrédients etc en fonction de la couleur donc il me faut un tableau des objets des cartes actuellement affichées sur la page
     switch (tagColor) {
       case 'primary':
-        targetSearch = 'primary';
+        targetSearch = 'ingredients';
         break;
       case 'success':
-        targetSearch = 'success';
+        targetSearch = 'appliance';
         break;
       case 'danger':
-        targetSearch = 'danger';
+        targetSearch = 'ustensils';
         break;
 
       default:
         break;
     }
-    console.log(targetSearch);
+
+    // Pour chaque recette actuellement sur la page
+    recipes.forEach((recipe) => {
+      // Si le type de tag sur lequel j'ai cliqué est un tableau dans les recettes (soit ingredients et ustensils)
+      if (recipe[targetSearch] instanceof Array) {
+        // Pour chaque élément du tableau (objet ingredient pour ingrédient et string pour ustensils)
+        recipe[targetSearch].forEach((element) => {
+          // Si le tag est un ingrédient
+          if (tag.innerText == element.ingredient) {
+            console.log(recipe);
+            injectFilteredRecipe(recipe);
+            // Sinon c'est un ustensil
+          } else if (tag.innerText == element) {
+            console.log(recipe);
+            injectFilteredRecipe(recipe);
+          }
+        });
+        // Sinon c'est un appareil
+      } else {
+        if (tag.innerText == recipe[targetSearch]) {
+          console.log(recipe);
+          injectFilteredRecipe(recipe);
+        }
+      }
+    });
   });
+  injectAllAdvancedFilters(
+    [IngredientsArray, AppliancesArray, UstensilsArray],
+    [containerIngredients, containerAppliances, containerUstensils]
+  );
 }
 
 // Fonction pour la recherche principale
@@ -209,53 +271,30 @@ async function mainFilter() {
     // On efface les recettes avant de lancer la boucle pour que les informations soient actualisées
     clearContent();
     recipes.forEach(async (recipe) => {
-      // Compteur pour itérer sur chaque ingrédient d'une recette
-      let i = 0;
       capitalizedFirstLetterInput = capitalizeFirstLetter(input);
+      // Si l'input est retrouvé parmi un des ingrédients d'une recette
+      recipe.ingredients.forEach((ingr) => {
+        if (
+          ingr.ingredient == input ||
+          ingr.ingredient == capitalizedFirstLetterInput
+        ) {
+          // On injecte la recette correspondante dans le DOM
+          injectFilteredRecipe(recipe);
+        }
+      });
       if (
-        // Si l'input est retrouvé parmi le titre, la description ou les ingrédients d'une recette
+        // Si l'input est retrouvé parmi le titre ou la description d'une recette
         recipe.name.indexOf(input) != -1 ||
         recipe.name.indexOf(capitalizedFirstLetterInput) != -1 ||
         recipe.description.includes(capitalizedFirstLetterInput) ||
-        recipe.description.includes(input) ||
-        recipe.ingredients[i].ingredient.includes(
-          capitalizedFirstLetterInput
-        ) ||
-        recipe.ingredients[i].ingredient.includes(input)
+        recipe.description.includes(input)
       ) {
-        // Si la carte n'est pas déjà injectée dans le DOM, je l'injecte dans le DOM
-        if (mainSection.children.length == 0) {
-          injectCard(recipe);
-          populateRecipeArray(recipe);
-        } else {
-          // Si il y a déjà des cartes de recettes dans le DOM
-          // Utilisation d'un compteur pour vérifier si la recette a déjà été injectée dans le DOM
-          let score = 0;
-          for (let index = 0; index < mainSection.children.length; index++) {
-            // Boucle sur chacune des cartes de recettes déjà ajoutées et incrémentation du score pour détecter les doublons
-            const child = mainSection.children[index];
-            if (child.getAttribute('data-id') == recipe.id) {
-              score++;
-            }
-          }
-          if (score == 0) {
-            // Si il n'y a pas de doublons et que le score est toujours à 0, j'injecte la carte de la recette et j'ajoute les données aux filtres avancés avant de remettre à zéro le score
-            injectCard(recipe);
-            populateArray(recipe);
-            populateRecipeArray(recipe);
-            score = 0;
-          }
-        }
+        // On injecte la recette correspondante dans le DOM
+        injectFilteredRecipe(recipe);
       } else {
         invalidSearch();
       }
-      i++;
     });
-  } else {
-    clearContent();
-    if (inputLength == 0) {
-      displayRecipes();
-    }
   }
 }
 

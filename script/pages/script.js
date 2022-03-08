@@ -5,6 +5,7 @@ const invalidSearchInput = document.querySelector('#invalid-search');
 const url = '../data/recipes.json';
 
 let allRecipes = [];
+let activeCards = [];
 
 fetch(url)
   .then((res) => res.json())
@@ -56,6 +57,7 @@ fetch(url)
 searchbar.addEventListener('input', (e) => {
   const value = e.target.value.toLowerCase();
   if (value.length > 2) {
+    //   Si pas de tag AllRecipes foreach, si tag faire sur activeCards foreach
     allRecipes.forEach((recipe) => {
       const isVisible =
         recipe.name.toLowerCase().includes(value) ||
@@ -72,9 +74,22 @@ searchbar.addEventListener('input', (e) => {
     });
     invalidSearchInput.classList.replace('d-inline', 'd-none');
   }
-  const activeCards = mainSection.querySelectorAll('[data-id]');
-  const cardsArray = Array.from(activeCards);
+  const allCards = mainSection.querySelectorAll('[data-id]');
+  const cardsArray = Array.from(allCards);
   if (cardsArray.every((element) => element.classList.contains('hide'))) {
     invalidSearchInput.classList.replace('d-none', 'd-inline');
   }
+  activeCards = [];
+  getActiveCards();
 });
+
+function getActiveCards() {
+  const allCards = mainSection.querySelectorAll('[data-id]');
+  allCards.forEach((element) => {
+    if (!element.classList.contains('hide')) {
+      activeCards.push(element);
+    }
+  });
+}
+
+// Event listener on click sur tag - filtre sur le tableau activecards - se resservir de la logique input en mettant le content du tag par type

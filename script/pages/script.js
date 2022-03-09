@@ -76,6 +76,7 @@ window.addEventListener('input', (e) => {
   switch (e.target.id) {
     case 'searchbar':
       const value = e.target.value.toLowerCase();
+      clearContent();
       if (value.length > 2) {
         //   Si pas de tag AllRecipes foreach, si tag faire sur activeCards foreach
         allRecipes.forEach((recipe) => {
@@ -87,17 +88,16 @@ window.addEventListener('input', (e) => {
             );
           recipe.element.classList.toggle('hide', !isVisible);
           invalidSearchInput.classList.replace('d-inline', 'd-none');
-          populateArray(recipe);
+          if (!recipe.element.classList.contains('hide')) {
+            populateArray(recipe);
+          }
         });
-        injectAllAdvancedFilters(
-          [IngredientsArray, AppliancesArray, UstensilsArray],
-          [containerIngredients, containerAppliances, containerUstensils]
-        );
       } else if (value.length == 0) {
         allRecipes.forEach((recipe) => {
           recipe.element.classList.remove('hide');
         });
         invalidSearchInput.classList.replace('d-inline', 'd-none');
+        getAllDataFilter();
       }
       const allCards = mainSection.querySelectorAll('[data-id]');
       const cardsArray = Array.from(allCards);
@@ -106,6 +106,10 @@ window.addEventListener('input', (e) => {
       }
       activeCards = [];
       getActiveCards();
+      injectAllAdvancedFilters(
+        [IngredientsArray, AppliancesArray, UstensilsArray],
+        [containerIngredients, containerAppliances, containerUstensils]
+      );
       break;
 
     default:
@@ -334,6 +338,13 @@ function createTag(e) {
   tagWrapper.appendChild(tag);
   tagWrapper.appendChild(deleteTag);
   tagsContainer.appendChild(tagWrapper);
+}
+
+// Fonction pour effacer le contenu des tableaux d'ingrédients, ustensils et appareils sur la page
+function clearContent() {
+  IngredientsArray = [];
+  UstensilsArray = [];
+  AppliancesArray = [];
 }
 
 // Gestion des évènements de création des filtres au clic sur les boutons de filtres avancés

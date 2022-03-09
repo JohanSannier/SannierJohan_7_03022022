@@ -521,10 +521,7 @@ function changeDisplay(target) {
   let activeFilter = document.querySelector('.active-filter');
   let newChevron = target.previousElementSibling.children[1];
   let btnParent = target.previousElementSibling;
-  // if (target.firstChild.children.length == 0) {
-  //   alert('Veuillez effectuer une recherche correcte au préalable');
-  //   return;
-  // }
+
   if (target.classList.contains('active-filter') && target == activeFilter) {
     target.classList.remove('active-filter');
     btnParent.classList.remove('border-fix');

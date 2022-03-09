@@ -3,7 +3,25 @@ const searchbar = document.querySelector('#searchbar');
 const mainSection = document.getElementById('main-section');
 const invalidSearchInput = document.querySelector('#invalid-search');
 const url = '../data/recipes.json';
-
+const colBtnIngredient = document.querySelector('#col-btn-ingredients');
+const containerIngredients = document.querySelector('#container-ingredients');
+const colBtnAppliance = document.querySelector('#col-btn-appliance');
+const containerAppliances = document.querySelector('#container-appliances');
+const colBtnUstensil = document.querySelector('#col-btn-ustensil');
+const containerUstensils = document.querySelector('#container-ustensils');
+const tagsContainer = document.querySelector('#tags-container');
+const filterButtons = document.getElementsByClassName('advanced-filters');
+const totalContainerFilter = [
+  containerIngredients,
+  containerAppliances,
+  containerUstensils,
+];
+let IngredientsArray = [];
+let AppliancesArray = [];
+let UstensilsArray = [];
+let onLoadIngredientsArray = [];
+let onLoadAppliancesArray = [];
+let onLoadUstensilsArray = [];
 let allRecipes = [];
 let activeCards = [];
 
@@ -54,33 +72,46 @@ fetch(url)
     });
   });
 
-searchbar.addEventListener('input', (e) => {
-  const value = e.target.value.toLowerCase();
-  if (value.length > 2) {
-    //   Si pas de tag AllRecipes foreach, si tag faire sur activeCards foreach
-    allRecipes.forEach((recipe) => {
-      const isVisible =
-        recipe.name.toLowerCase().includes(value) ||
-        recipe.description.toLowerCase().includes(value) ||
-        recipe.ingredients.some((ingr) =>
-          ingr.ingredient.toLowerCase().includes(value)
+window.addEventListener('input', (e) => {
+  switch (e.target.id) {
+    case 'searchbar':
+      const value = e.target.value.toLowerCase();
+      if (value.length > 2) {
+        //   Si pas de tag AllRecipes foreach, si tag faire sur activeCards foreach
+        allRecipes.forEach((recipe) => {
+          const isVisible =
+            recipe.name.toLowerCase().includes(value) ||
+            recipe.description.toLowerCase().includes(value) ||
+            recipe.ingredients.some((ingr) =>
+              ingr.ingredient.toLowerCase().includes(value)
+            );
+          recipe.element.classList.toggle('hide', !isVisible);
+          invalidSearchInput.classList.replace('d-inline', 'd-none');
+          populateArray(recipe);
+        });
+        injectAllAdvancedFilters(
+          [IngredientsArray, AppliancesArray, UstensilsArray],
+          [containerIngredients, containerAppliances, containerUstensils]
         );
-      recipe.element.classList.toggle('hide', !isVisible);
-      invalidSearchInput.classList.replace('d-inline', 'd-none');
-    });
-  } else if (value.length == 0) {
-    allRecipes.forEach((recipe) => {
-      recipe.element.classList.remove('hide');
-    });
-    invalidSearchInput.classList.replace('d-inline', 'd-none');
+      } else if (value.length == 0) {
+        allRecipes.forEach((recipe) => {
+          recipe.element.classList.remove('hide');
+        });
+        invalidSearchInput.classList.replace('d-inline', 'd-none');
+      }
+      const allCards = mainSection.querySelectorAll('[data-id]');
+      const cardsArray = Array.from(allCards);
+      if (cardsArray.every((element) => element.classList.contains('hide'))) {
+        invalidSearchInput.classList.replace('d-none', 'd-inline');
+      }
+      activeCards = [];
+      getActiveCards();
+      break;
+
+    default:
+      break;
   }
-  const allCards = mainSection.querySelectorAll('[data-id]');
-  const cardsArray = Array.from(allCards);
-  if (cardsArray.every((element) => element.classList.contains('hide'))) {
-    invalidSearchInput.classList.replace('d-none', 'd-inline');
-  }
-  activeCards = [];
-  getActiveCards();
+  checkInputFilters(e);
 });
 
 function getActiveCards() {
@@ -93,3 +124,253 @@ function getActiveCards() {
 }
 
 // Event listener on click sur tag - filtre sur le tableau activecards - se resservir de la logique input en mettant le content du tag par type
+
+// Fonction pour afficher tous les ingrédients, ustensils et appareils dès le chargement de la page
+async function populateOnLoad() {
+  let recipes = allRecipes;
+  recipes.forEach((recipe) => {
+    recipe.ingredients.forEach((ingredient) => {
+      if (onLoadIngredientsArray.indexOf(ingredient.ingredient) == -1) {
+        onLoadIngredientsArray.push(ingredient.ingredient);
+      }
+    });
+    recipe.ustensils.forEach((ustensil) => {
+      if (onLoadUstensilsArray.indexOf(ustensil) == -1) {
+        onLoadUstensilsArray.push(ustensil);
+      }
+    });
+    if (onLoadAppliancesArray.indexOf(recipe.appliance) == -1) {
+      onLoadAppliancesArray.push(recipe.appliance);
+    }
+  });
+}
+
+// Fonction sauvegarder les filtres avancés dans leur tableaux respectifs
+async function getAllDataFilter() {
+  let data = await populateOnLoad();
+  if (searchbar.value.length == 0) {
+    injectAllAdvancedFilters(
+      [onLoadIngredientsArray, onLoadAppliancesArray, onLoadUstensilsArray],
+      [containerIngredients, containerAppliances, containerUstensils]
+    );
+  }
+}
+
+// Création d'un input à l'intérieur du span
+function getInputFilters(type, color) {
+  let input = document.createElement('input');
+  input.classList.add('btn', `btn-${color}`);
+  const dataName = type.getAttribute('data-name');
+  input.setAttribute('placeholder', `Rechercher un ${dataName}`);
+  input.setAttribute('type', 'search');
+  input.classList.add('text-white', 'p-0', 'input-advanced-filters');
+  input.setAttribute('id', `input-${color}`);
+  type.innerText = '';
+  type.appendChild(input);
+  let spanParent = input.parentElement;
+  let btnParent = spanParent.parentElement;
+  btnParent.classList.remove('px-4');
+  input.focus();
+}
+
+function checkInputFilters(e) {
+  let itemsContainer;
+  switch (e.target.id) {
+    case 'input-primary':
+      itemsContainer = document.getElementById(
+        'container-ingredients'
+      ).firstChild;
+      break;
+    case 'input-success':
+      itemsContainer = document.getElementById(
+        'container-appliances'
+      ).firstChild;
+      break;
+    case 'input-danger':
+      itemsContainer = document.getElementById(
+        'container-ustensils'
+      ).firstChild;
+      break;
+
+    default:
+      break;
+  }
+  if (itemsContainer && itemsContainer.children.length != 0) {
+    let value = e.target.value.toLowerCase();
+    let items = itemsContainer.childNodes;
+    items.forEach((item) => {
+      const isVisible = item.innerText.toLowerCase().includes(value);
+      item.classList.toggle('hide', !isVisible);
+    });
+  }
+}
+
+// Création et injection des items de filtres avancés
+async function injectAllAdvancedFilters(array, parent) {
+  let i = 0;
+  parent.forEach((childContainer) => {
+    childContainer.firstChild.innerHTML = '';
+    const type = childContainer.className.substr(20);
+    const correctType = type.split(' ')[0];
+
+    array[i].forEach((element) => {
+      let liste = document.createElement('li');
+      liste.classList.add('main-list', 'w-33');
+      liste.setAttribute('data-color', correctType);
+      liste.innerText = element;
+      childContainer.firstChild.appendChild(liste);
+    });
+    i++;
+  });
+}
+
+// Fonction pour remplir les tableaux d'ingrédients, ustensils et appareils
+function populateArray(recipe) {
+  recipe.ingredients.forEach((ingredient) => {
+    if (IngredientsArray.indexOf(ingredient.ingredient) == -1) {
+      IngredientsArray.push(ingredient.ingredient);
+    }
+  });
+  recipe.ustensils.forEach((ustensil) => {
+    if (UstensilsArray.indexOf(ustensil) == -1) {
+      UstensilsArray.push(ustensil);
+    }
+  });
+  if (AppliancesArray.indexOf(recipe.appliance) == -1) {
+    AppliancesArray.push(recipe.appliance);
+  }
+}
+
+// Fonction pour faire apparaître les filtres avancés
+function changeDisplay(target) {
+  let activeFilter = document.querySelector('.active-filter');
+  let newChevron = target.previousElementSibling.children[1];
+  let btnParent = target.previousElementSibling;
+
+  if (target.classList.contains('active-filter') && target == activeFilter) {
+    target.classList.remove('active-filter');
+    btnParent.classList.remove('border-fix');
+    newChevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
+  } else if (
+    totalContainerFilter.some((element) =>
+      element.classList.contains('active-filter')
+    )
+  ) {
+    let oldChevron = activeFilter.previousElementSibling.children[1];
+    oldChevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
+    activeFilter.previousElementSibling.classList.remove(
+      'border-fix',
+      'active-width'
+    );
+    activeFilter.parentNode.classList.remove('active-width');
+    activeFilter.classList.remove('active-filter');
+    target.classList.add('active-filter');
+    btnParent.classList.add('border-fix');
+    newChevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
+  } else {
+    target.classList.add('active-filter');
+    btnParent.classList.add('border-fix');
+    newChevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
+  }
+}
+
+// Fonction pour sélectionner les tags sur les filtres
+async function advancedFiltering(e) {
+  // Je récupère l'attribut data-color pour obtenir le style correct du tag si c'est un ingrédient, appareil ou un ustensil
+  if (e.target.classList.contains('main-list')) {
+    // Si il n'y a aucun tag sélectionné je créé un tag
+    if (tagsContainer.children.length == 0) {
+      createTag(e);
+    } else {
+      // Sinon, pour chaque tag sélectionné, je vérifie si le le tag sur lequel j'ai cliqué est déjà affiché
+      let scoreTag = 0;
+      for (let index = 0; index < tagsContainer.children.length; index++) {
+        const element = tagsContainer.children[index];
+        if (e.target.innerText == element.firstChild.innerText) {
+          scoreTag++;
+        }
+      }
+      // Si le score est à 0 et donc que le tag n'a pas été sélectionné avant, je créé le tag
+      if (scoreTag == 0) {
+        createTag(e);
+      }
+    }
+  }
+}
+
+// Fonction qui créé le tag du filtre
+function createTag(e) {
+  switch (e.target.getAttribute('data-color')) {
+    case 'primary':
+      color = 'primary';
+      break;
+    case 'success':
+      color = 'success';
+      break;
+    case 'danger':
+      color = 'danger';
+      break;
+
+    default:
+      break;
+  }
+  let tagWrapper = document.createElement('div');
+  tagWrapper.classList.add(
+    'tag-wrapper',
+    'd-inline-flex',
+    'me-4',
+    `bg-${color}`,
+    'p-2',
+    'rounded',
+    'text-white',
+    'mb-3'
+  );
+  let tag = document.createElement('span');
+  tag.classList.add('me-3', 'tag');
+  tag.setAttribute('data-color', color);
+  tag.innerText = e.target.innerText;
+  let deleteTag = document.createElement('i');
+  deleteTag.classList.add('bi', 'bi-x-circle');
+  tagWrapper.appendChild(tag);
+  tagWrapper.appendChild(deleteTag);
+  tagsContainer.appendChild(tagWrapper);
+}
+
+// Gestion des évènements de création des filtres au clic sur les boutons de filtres avancés
+window.addEventListener('click', (e) => {
+  switch (e.target.id) {
+    case 'ingredients':
+      getInputFilters(e.target, 'primary');
+      break;
+    case 'chevron-ingredients':
+      changeDisplay(containerIngredients);
+      getAllDataFilter();
+      break;
+    case 'appliance':
+      getInputFilters(e.target, 'success');
+      break;
+    case 'chevron-appliance':
+      changeDisplay(containerAppliances);
+      getAllDataFilter();
+      break;
+    case 'ustensil':
+      getInputFilters(e.target, 'danger');
+      break;
+    case 'chevron-ustensil':
+      changeDisplay(containerUstensils);
+      getAllDataFilter();
+      break;
+    default:
+      break;
+  }
+  switch (e.target.classList.value) {
+    case 'bi bi-x-circle':
+      tagsContainer.removeChild(e.target.parentNode);
+      break;
+
+    default:
+      break;
+  }
+  advancedFiltering(e);
+  // J'appelle la fonction de filtre tag uniquement si il y a au moins un tag sélectionné
+});

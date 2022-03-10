@@ -24,6 +24,7 @@ let onLoadAppliancesArray = [];
 let onLoadUstensilsArray = [];
 let allRecipes = [];
 let activeCards = [];
+let allTags = document.getElementsByClassName('tag');
 
 fetch(url)
   .then((res) => res.json())
@@ -72,62 +73,13 @@ fetch(url)
     });
   });
 
-window.addEventListener('input', (e) => {
-  switch (e.target.id) {
-    case 'searchbar':
-      const value = e.target.value.toLowerCase();
-      clearContent();
-      if (value.length > 2) {
-        //   Si pas de tag AllRecipes foreach, si tag faire sur activeCards foreach
-        allRecipes.forEach((recipe) => {
-          const isVisible =
-            recipe.name.toLowerCase().includes(value) ||
-            recipe.description.toLowerCase().includes(value) ||
-            recipe.ingredients.some((ingr) =>
-              ingr.ingredient.toLowerCase().includes(value)
-            );
-          recipe.element.classList.toggle('hide', !isVisible);
-          invalidSearchInput.classList.replace('d-inline', 'd-none');
-          if (!recipe.element.classList.contains('hide')) {
-            populateArray(recipe);
-          }
-        });
-      } else if (value.length == 0) {
-        allRecipes.forEach((recipe) => {
-          recipe.element.classList.remove('hide');
-        });
-        invalidSearchInput.classList.replace('d-inline', 'd-none');
-        getAllDataFilter();
-      }
-      const allCards = mainSection.querySelectorAll('[data-id]');
-      const cardsArray = Array.from(allCards);
-      if (cardsArray.every((element) => element.classList.contains('hide'))) {
-        invalidSearchInput.classList.replace('d-none', 'd-inline');
-      }
-      activeCards = [];
-      getActiveCards();
-      injectAllAdvancedFilters(
-        [IngredientsArray, AppliancesArray, UstensilsArray],
-        [containerIngredients, containerAppliances, containerUstensils]
-      );
-      break;
-
-    default:
-      break;
-  }
-  checkInputFilters(e);
-});
-
 function getActiveCards() {
-  const allCards = mainSection.querySelectorAll('[data-id]');
-  allCards.forEach((element) => {
-    if (!element.classList.contains('hide')) {
+  allRecipes.forEach((element) => {
+    if (!element.element.classList.contains('hide')) {
       activeCards.push(element);
     }
   });
 }
-
-// Event listener on click sur tag - filtre sur le tableau activecards - se resservir de la logique input en mettant le content du tag par type
 
 // Fonction pour afficher tous les ingrédients, ustensils et appareils dès le chargement de la page
 async function populateOnLoad() {
@@ -382,6 +334,104 @@ window.addEventListener('click', (e) => {
     default:
       break;
   }
+
+  if (e.target.classList.contains('main-list')) {
+    // Je dois utiliser un set timeout afin que mon tableau prenne en compte le nouveau tag au clic
+    setTimeout(() => {
+      // Je créé un nouveau tableau contenant les tags sélectionnés
+      let selectedTags = Array.from(allTags);
+      console.log(selectedTags);
+      // Si l'utilisateur n'a rien écrit dans la recherche principale
+      if (searchbar.value.length == 0) {
+        // Pour chacun des tags, je vais vérifier si le tag correspond à un type puis filtrer les résultats correspondants
+        selectedTags.forEach((tag) => {
+          let tagColor = tag.getAttribute('data-color');
+          let result = [];
+          getActiveCards();
+          console.log(activeCards);
+          switch (tagColor) {
+            case 'primary':
+              result = activeCards.filter((recipe) =>
+                recipe.ingredients.some((ingr) =>
+                  ingr.ingredient
+                    .toLowerCase()
+                    .includes(tag.innerText.toLowerCase())
+                )
+              );
+              break;
+            case 'success':
+              result = activeCards.filter(
+                (recipe) =>
+                  recipe.appliance.toLowerCase() == tag.innerText.toLowerCase()
+              );
+              break;
+            case 'danger':
+              result = activeCards.filter((recipe) =>
+                recipe.ustensils.some((ustensil) =>
+                  ustensil.toLowerCase().includes(tag.innerText.toLowerCase())
+                )
+              );
+              break;
+
+            default:
+              break;
+          }
+          console.log(result);
+          console.log(activeCards);
+          // result.forEach((correctResult) => {
+          //   console.log(correctResult);
+          // });
+        });
+      }
+    }, 50);
+  }
+
   advancedFiltering(e);
   // J'appelle la fonction de filtre tag uniquement si il y a au moins un tag sélectionné
+});
+
+window.addEventListener('input', (e) => {
+  switch (e.target.id) {
+    case 'searchbar':
+      const value = e.target.value.toLowerCase();
+      clearContent();
+      if (value.length > 2) {
+        //   Si pas de tag AllRecipes foreach, si tag faire sur activeCards foreach
+        allRecipes.forEach((recipe) => {
+          const isVisible =
+            recipe.name.toLowerCase().includes(value) ||
+            recipe.description.toLowerCase().includes(value) ||
+            recipe.ingredients.some((ingr) =>
+              ingr.ingredient.toLowerCase().includes(value)
+            );
+          recipe.element.classList.toggle('hide', !isVisible);
+          invalidSearchInput.classList.replace('d-inline', 'd-none');
+          if (!recipe.element.classList.contains('hide')) {
+            populateArray(recipe);
+          }
+        });
+      } else if (value.length == 0) {
+        allRecipes.forEach((recipe) => {
+          recipe.element.classList.remove('hide');
+        });
+        invalidSearchInput.classList.replace('d-inline', 'd-none');
+        getAllDataFilter();
+      }
+      const allCards = mainSection.querySelectorAll('[data-id]');
+      const cardsArray = Array.from(allCards);
+      if (cardsArray.every((element) => element.classList.contains('hide'))) {
+        invalidSearchInput.classList.replace('d-none', 'd-inline');
+      }
+      activeCards = [];
+      getActiveCards();
+      injectAllAdvancedFilters(
+        [IngredientsArray, AppliancesArray, UstensilsArray],
+        [containerIngredients, containerAppliances, containerUstensils]
+      );
+      break;
+
+    default:
+      break;
+  }
+  checkInputFilters(e);
 });

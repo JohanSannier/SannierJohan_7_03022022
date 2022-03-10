@@ -340,64 +340,129 @@ window.addEventListener('click', (e) => {
     setTimeout(() => {
       // Je créé un nouveau tableau contenant les tags sélectionnés
       let selectedTags = Array.from(allTags);
-      console.log(selectedTags);
       // Si l'utilisateur n'a rien écrit dans la recherche principale
-      if (searchbar.value.length == 0) {
-        // Pour chacun des tags, je vais vérifier si le tag correspond à un type puis filtrer les résultats correspondants
-        selectedTags.forEach((tag) => {
-          let tagColor = tag.getAttribute('data-color');
-          let result = [];
-          getActiveCards();
-          console.log(activeCards);
-          switch (tagColor) {
-            case 'primary':
-              result = activeCards.filter((recipe) =>
-                recipe.ingredients.some((ingr) =>
-                  ingr.ingredient
-                    .toLowerCase()
-                    .includes(tag.innerText.toLowerCase())
-                )
-              );
-              break;
-            case 'success':
-              result = activeCards.filter(
-                (recipe) =>
-                  recipe.appliance.toLowerCase() == tag.innerText.toLowerCase()
-              );
-              break;
-            case 'danger':
-              result = activeCards.filter((recipe) =>
-                recipe.ustensils.some((ustensil) =>
-                  ustensil.toLowerCase().includes(tag.innerText.toLowerCase())
-                )
-              );
-              break;
+      // if (searchbar.value.length == 0) {
+      // Pour chacun des tags, je vais vérifier si le tag correspond à un type puis filtrer les résultats correspondants
+      selectedTags.forEach((tag) => {
+        let tagColor = tag.getAttribute('data-color');
+        let result = [];
+        activeCards = [];
+        getActiveCards();
+        switch (tagColor) {
+          case 'primary':
+            result = activeCards.filter((recipe) =>
+              recipe.ingredients.some((ingr) =>
+                ingr.ingredient
+                  .toLowerCase()
+                  .includes(tag.innerText.toLowerCase())
+              )
+            );
+            type = 'ingredient';
 
-            default:
-              break;
+            break;
+          case 'success':
+            result = activeCards.filter(
+              (recipe) =>
+                recipe.appliance.toLowerCase() == tag.innerText.toLowerCase()
+            );
+            type = 'appliance';
+            break;
+          case 'danger':
+            result = activeCards.filter((recipe) =>
+              recipe.ustensils.some((ustensil) =>
+                ustensil.toLowerCase().includes(tag.innerText.toLowerCase())
+              )
+            );
+            type = 'ustensil';
+            break;
+
+          default:
+            break;
+        }
+
+        console.log(result);
+        console.log(activeCards);
+
+        activeCards.forEach((card) => {
+          let score = 0;
+          result.forEach((correctResult) => {
+            if (card == correctResult) {
+              score++;
+            }
+          });
+          if (score != 1) {
+            card.element.classList.add('hide');
           }
-          console.log(result);
-          console.log(activeCards);
-          // result.forEach((correctResult) => {
-          //   console.log(correctResult);
-          // });
+          score = 0;
         });
-      }
+
+        // activeCards = [];
+        // console.log(activeCards);
+        // activeCards = result;
+        // console.log(activeCards);
+
+        // activeCards.forEach((card) => {
+        //   result.forEach((correctResult) => {
+        //     if (card != correctResult) {
+        //       card.element.classList.add('hide');
+        //     }
+        //   });
+        // });
+
+        // -------------------------------------------------------------
+        // activeCards.forEach((card) => {
+        //   result.forEach((correctResult) => {
+        //     const isVisible =
+        //       correctResult.ingredients.some((ingr) =>
+        //         ingr.ingredient
+        //           .toLowerCase()
+        //           .includes(
+        //             card.ingredients.some((cardIngr) =>
+        //               cardIngr.ingredient.toLowerCase()
+        //             )
+        //           )
+        //       ) ||
+        //       correctResult.appliance
+        //         .toLowerCase()
+        //         .includes(card.appliance) ||
+        //       correctResult.ustensils.some((ustensil) =>
+        //         ustensil
+        //           .toLowerCase()
+        //           .includes(
+        //             card.ustensils.some((cardUstensil) =>
+        //               cardUstensil.toLowerCase()
+        //             )
+        //           )
+        //       );
+        //     console.log(isVisible);
+        //     card.element.classList.toggle('hide', !isVisible);
+        //   });
+        // });
+
+        // -------------------------
+      });
+      // }
     }, 50);
   }
-
   advancedFiltering(e);
   // J'appelle la fonction de filtre tag uniquement si il y a au moins un tag sélectionné
 });
 
+let userAction = false;
+let previousSearchLength = 0;
+
 window.addEventListener('input', (e) => {
   switch (e.target.id) {
     case 'searchbar':
+      userAction = true;
       const value = e.target.value.toLowerCase();
       clearContent();
+      activeCards = [];
+      getActiveCards();
+      console.log(activeCards);
       if (value.length > 2) {
         //   Si pas de tag AllRecipes foreach, si tag faire sur activeCards foreach
-        allRecipes.forEach((recipe) => {
+        activeCards.forEach((recipe) => {
           const isVisible =
             recipe.name.toLowerCase().includes(value) ||
             recipe.description.toLowerCase().includes(value) ||
@@ -411,19 +476,24 @@ window.addEventListener('input', (e) => {
           }
         });
       } else if (value.length == 0) {
-        allRecipes.forEach((recipe) => {
+        activeCards.forEach((recipe) => {
           recipe.element.classList.remove('hide');
         });
         invalidSearchInput.classList.replace('d-inline', 'd-none');
-        getAllDataFilter();
+        if (previousSearchLength > 0) {
+          injectAllAdvancedFilters(
+            [IngredientsArray, AppliancesArray, UstensilsArray],
+            [containerIngredients, containerAppliances, containerUstensils]
+          );
+        } else {
+          getAllDataFilter();
+        }
       }
       const allCards = mainSection.querySelectorAll('[data-id]');
       const cardsArray = Array.from(allCards);
       if (cardsArray.every((element) => element.classList.contains('hide'))) {
         invalidSearchInput.classList.replace('d-none', 'd-inline');
       }
-      activeCards = [];
-      getActiveCards();
       injectAllAdvancedFilters(
         [IngredientsArray, AppliancesArray, UstensilsArray],
         [containerIngredients, containerAppliances, containerUstensils]
@@ -433,5 +503,6 @@ window.addEventListener('input', (e) => {
     default:
       break;
   }
+  previousSearchLength = searchbar.value.length;
   checkInputFilters(e);
 });

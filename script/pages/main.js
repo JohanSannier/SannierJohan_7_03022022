@@ -23,7 +23,6 @@ let onLoadIngredientsArray = [];
 let onLoadAppliancesArray = [];
 let onLoadUstensilsArray = [];
 let allRecipes = [];
-let activeCards = [];
 let allTags = document.getElementsByClassName('tag');
 
 fetch(url)
@@ -56,7 +55,7 @@ fetch(url)
         } else if (element.quantity) {
           listItem.innerHTML = `<span class="fw-bold">${element.ingredient}:</span> ${element.quantity}`;
         } else {
-          listItem.innerHTML = `<span class="fw-boldm">${element.ingredient}</span>`;
+          listItem.innerHTML = `<span class="fw-bold">${element.ingredient}</span>`;
         }
         ul.appendChild(listItem);
       });
@@ -73,18 +72,78 @@ fetch(url)
     });
   });
 
-function getActiveCards() {
-  allRecipes.forEach((element) => {
-    if (!element.element.classList.contains('hide')) {
-      activeCards.push(element);
+// Fonction pour filtrer ce que recherche l'utilisateur et afficher les recettes correspondantes
+function filter(e) {
+  setTimeout(() => {
+    //   Déclaration d'un compteur global qui correspond à la valeur correcte en fonction de la recherche effectuée et qui sera remise à 0 à chaque appel de la fonction
+    let value = searchbar.value;
+    let correctScore = 0;
+    let visibleRecipe = false;
+    clearContent();
+    if (value.length >= 3) {
+      // Si l'utilisateur a effectué une recherche d'au moins 3 caractères, la variable correctScore passe à 1, sinon elle revient à 0
+      correctScore = 1;
+    } else {
+      correctScore = 0;
     }
-  });
+    let selectedTags = Array.from(allTags);
+    selectedTags.forEach((tag) => {
+      // Pour chaque tag actuellement sélectionné, j'incrémente la variable correctScore de 1
+      correctScore++;
+    });
+    allRecipes.forEach((recipe) => {
+      // Pour chaque recette, je créé une nouvelle variable currentScore qui représentera les scores atteints par chaque recette
+      let currentScore = 0;
+      if (value.length >= 3) {
+        //   Si la recherche principale est correcte, currentScore passe à 1
+        if (
+          recipe.name.toLowerCase().includes(value) ||
+          recipe.description.toLowerCase().includes(value) ||
+          recipe.ingredients.some((ingr) =>
+            ingr.ingredient.toLowerCase().includes(value)
+          )
+        ) {
+          currentScore = 1;
+        }
+      }
+      selectedTags.forEach((tag) => {
+        //   Pour chaque tag, si un ingrédient, appareil ou ustensil de la recette correspond au tag, j'incrémente le currentScore de la recette
+        let tagContent = tag.textContent.toLowerCase();
+        if (
+          recipe.appliance.toLowerCase().includes(tagContent) ||
+          recipe.ustensils.some((ustensil) =>
+            ustensil.toLowerCase().includes(tagContent)
+          ) ||
+          recipe.ingredients.some((ingr) =>
+            ingr.ingredient.toLowerCase().includes(tagContent)
+          )
+        ) {
+          currentScore++;
+        }
+      });
+      if (currentScore >= 1) {
+        console.log(recipe.name + ' ' + currentScore);
+      }
+      //   Enfin, si les deux variables sont égales, donc si la ou les recherches correspondent à la celles de l'utilisateur, les recettes resteront affichés. Si elles ne correspondent pas, les recettes seront cachées.
+      if (correctScore == currentScore) {
+        visibleRecipe = true;
+        populateArray(recipe);
+      } else {
+        visibleRecipe = false;
+      }
+      recipe.element.classList.toggle('hide', !visibleRecipe);
+    });
+    console.log(UstensilsArray);
+    injectAllAdvancedFilters(
+      [IngredientsArray, AppliancesArray, UstensilsArray],
+      [containerIngredients, containerAppliances, containerUstensils]
+    );
+  }, 100);
 }
 
 // Fonction pour afficher tous les ingrédients, ustensils et appareils dès le chargement de la page
 async function populateOnLoad() {
-  let recipes = allRecipes;
-  recipes.forEach((recipe) => {
+  allRecipes.forEach((recipe) => {
     recipe.ingredients.forEach((ingredient) => {
       if (onLoadIngredientsArray.indexOf(ingredient.ingredient) == -1) {
         onLoadIngredientsArray.push(ingredient.ingredient);
@@ -104,7 +163,7 @@ async function populateOnLoad() {
 // Fonction sauvegarder les filtres avancés dans leur tableaux respectifs
 async function getAllDataFilter() {
   let data = await populateOnLoad();
-  if (searchbar.value.length == 0) {
+  if (searchbar.value.length == 0 && allTags.length == 0) {
     injectAllAdvancedFilters(
       [onLoadIngredientsArray, onLoadAppliancesArray, onLoadUstensilsArray],
       [containerIngredients, containerAppliances, containerUstensils]
@@ -129,6 +188,7 @@ function getInputFilters(type, color) {
   input.focus();
 }
 
+// Fonction permettant de rechercher à l'intérieur de l'input des filtres avancés
 function checkInputFilters(e) {
   let itemsContainer;
   switch (e.target.id) {
@@ -329,184 +389,26 @@ window.addEventListener('click', (e) => {
   switch (e.target.classList.value) {
     case 'bi bi-x-circle':
       tagsContainer.removeChild(e.target.parentNode);
+      filter(e);
       break;
 
     default:
       break;
   }
-
   if (e.target.classList.contains('main-list')) {
-    // Je dois utiliser un set timeout afin que mon tableau prenne en compte le nouveau tag au clic
-    setTimeout(() => {
-      // Je créé un nouveau tableau contenant les tags sélectionnés
-      let selectedTags = Array.from(allTags);
-      // Si l'utilisateur n'a rien écrit dans la recherche principale
-      // if (searchbar.value.length == 0) {
-      // Pour chacun des tags, je vais vérifier si le tag correspond à un type puis filtrer les résultats correspondants
-      selectedTags.forEach((tag) => {
-        let tagColor = tag.getAttribute('data-color');
-        let result = [];
-        activeCards = [];
-        getActiveCards();
-        switch (tagColor) {
-          case 'primary':
-            result = activeCards.filter((recipe) =>
-              recipe.ingredients.some((ingr) =>
-                ingr.ingredient
-                  .toLowerCase()
-                  .includes(tag.innerText.toLowerCase())
-              )
-            );
-            type = 'ingredient';
-
-            break;
-          case 'success':
-            result = activeCards.filter(
-              (recipe) =>
-                recipe.appliance.toLowerCase() == tag.innerText.toLowerCase()
-            );
-            type = 'appliance';
-            break;
-          case 'danger':
-            result = activeCards.filter((recipe) =>
-              recipe.ustensils.some((ustensil) =>
-                ustensil.toLowerCase().includes(tag.innerText.toLowerCase())
-              )
-            );
-            type = 'ustensil';
-            break;
-
-          default:
-            break;
-        }
-
-        console.log(result);
-        console.log(activeCards);
-
-        activeCards.forEach((card) => {
-          let score = 0;
-          result.forEach((correctResult) => {
-            if (card == correctResult) {
-              score++;
-            }
-          });
-          if (score != 1) {
-            card.element.classList.add('hide');
-          }
-          score = 0;
-        });
-
-        // activeCards = [];
-        // console.log(activeCards);
-        // activeCards = result;
-        // console.log(activeCards);
-
-        // activeCards.forEach((card) => {
-        //   result.forEach((correctResult) => {
-        //     if (card != correctResult) {
-        //       card.element.classList.add('hide');
-        //     }
-        //   });
-        // });
-
-        // -------------------------------------------------------------
-        // activeCards.forEach((card) => {
-        //   result.forEach((correctResult) => {
-        //     const isVisible =
-        //       correctResult.ingredients.some((ingr) =>
-        //         ingr.ingredient
-        //           .toLowerCase()
-        //           .includes(
-        //             card.ingredients.some((cardIngr) =>
-        //               cardIngr.ingredient.toLowerCase()
-        //             )
-        //           )
-        //       ) ||
-        //       correctResult.appliance
-        //         .toLowerCase()
-        //         .includes(card.appliance) ||
-        //       correctResult.ustensils.some((ustensil) =>
-        //         ustensil
-        //           .toLowerCase()
-        //           .includes(
-        //             card.ustensils.some((cardUstensil) =>
-        //               cardUstensil.toLowerCase()
-        //             )
-        //           )
-        //       );
-        //     console.log(isVisible);
-        //     card.element.classList.toggle('hide', !isVisible);
-        //   });
-        // });
-
-        // -------------------------
-      });
-      // }
-    }, 50);
+    filter(e);
   }
   advancedFiltering(e);
-  // J'appelle la fonction de filtre tag uniquement si il y a au moins un tag sélectionné
 });
-
-let userAction = false;
-let previousSearchLength = 0;
 
 window.addEventListener('input', (e) => {
   switch (e.target.id) {
     case 'searchbar':
-      userAction = true;
-      const value = e.target.value.toLowerCase();
-      clearContent();
-      // activeCards = [];
-      getActiveCards();
-      console.log(activeCards);
-      if (value.length > 2) {
-        //   Si pas de tag AllRecipes foreach, si tag faire sur activeCards foreach
-        activeCards.forEach((recipe) => {
-          const isVisible =
-            recipe.name.toLowerCase().includes(value) ||
-            recipe.description.toLowerCase().includes(value) ||
-            recipe.ingredients.some((ingr) =>
-              ingr.ingredient.toLowerCase().includes(value)
-            ) ||
-            recipe.appliance.toLowerCase().includes(value);
-          recipe.ustensils.some((ustensil) =>
-            ustensil.toLowerCase().includes(value)
-          );
-          recipe.element.classList.toggle('hide', !isVisible);
-          invalidSearchInput.classList.replace('d-inline', 'd-none');
-          if (!recipe.element.classList.contains('hide')) {
-            populateArray(recipe);
-          }
-        });
-      } else if (value.length == 0) {
-        activeCards.forEach((recipe) => {
-          recipe.element.classList.remove('hide');
-        });
-        invalidSearchInput.classList.replace('d-inline', 'd-none');
-        if (previousSearchLength > 0) {
-          injectAllAdvancedFilters(
-            [IngredientsArray, AppliancesArray, UstensilsArray],
-            [containerIngredients, containerAppliances, containerUstensils]
-          );
-        } else {
-          getAllDataFilter();
-        }
-      }
-      const allCards = mainSection.querySelectorAll('[data-id]');
-      const cardsArray = Array.from(allCards);
-      if (cardsArray.every((element) => element.classList.contains('hide'))) {
-        invalidSearchInput.classList.replace('d-none', 'd-inline');
-      }
-      injectAllAdvancedFilters(
-        [IngredientsArray, AppliancesArray, UstensilsArray],
-        [containerIngredients, containerAppliances, containerUstensils]
-      );
+      filter(e);
       break;
 
     default:
       break;
   }
-  previousSearchLength = searchbar.value.length;
   checkInputFilters(e);
 });

@@ -134,6 +134,11 @@ function filter(e) {
       [IngredientsArray, AppliancesArray, UstensilsArray],
       [containerIngredients, containerAppliances, containerUstensils]
     );
+    if (document.getElementsByClassName('hide').length == allRecipes.length) {
+      invalidSearchInput.classList.replace('d-none', 'd-inline');
+    } else {
+      invalidSearchInput.classList.replace('d-inline', 'd-none');
+    }
   }, 100);
 }
 
@@ -189,19 +194,16 @@ function checkInputFilters(e) {
   let itemsContainer;
   switch (e.target.id) {
     case 'input-primary':
-      itemsContainer = document.getElementById(
-        'container-ingredients'
-      ).firstChild;
+      itemsContainer = document.getElementById('container-ingredients')
+        .children[0];
       break;
     case 'input-success':
-      itemsContainer = document.getElementById(
-        'container-appliances'
-      ).firstChild;
+      itemsContainer = document.getElementById('container-appliances')
+        .children[0];
       break;
     case 'input-danger':
-      itemsContainer = document.getElementById(
-        'container-ustensils'
-      ).firstChild;
+      itemsContainer = document.getElementById('container-ustensils')
+        .children[0];
       break;
 
     default:

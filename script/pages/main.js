@@ -136,6 +136,11 @@ function filter(e) {
       [IngredientsArray, AppliancesArray, UstensilsArray],
       [containerIngredients, containerAppliances, containerUstensils]
     );
+    if (document.getElementsByClassName('hide').length == allRecipes.length) {
+      invalidSearchInput.classList.replace('d-none', 'd-inline');
+    } else {
+      invalidSearchInput.classList.replace('d-inline', 'd-none');
+    }
   }, 100);
 }
 

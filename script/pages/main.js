@@ -86,12 +86,13 @@ function filter(e) {
     } else {
       correctScore = 0;
     }
-    let selectedTags = Array.from(allTags);
-    selectedTags.forEach((tag) => {
-      // Pour chaque tag actuellement sélectionné, j'incrémente la variable correctScore de 1
+    // Pour chaque tag actuellement sélectionné, j'incrémente la variable correctScore de 1
+    for (let index = 0; index < allTags.length; index++) {
+      const element = allTags[index];
       correctScore++;
-    });
-    allRecipes.forEach((recipe) => {
+    }
+    for (let index = 0; index < allRecipes.length; index++) {
+      const recipe = allRecipes[index];
       // Pour chaque recette, je créé une nouvelle variable currentScore qui représentera les scores atteints par chaque recette
       let currentScore = 0;
       if (value.length >= 3) {
@@ -106,7 +107,8 @@ function filter(e) {
           currentScore = 1;
         }
       }
-      selectedTags.forEach((tag) => {
+      for (let index = 0; index < allTags.length; index++) {
+        const tag = allTags[index];
         //   Pour chaque tag, si un ingrédient, appareil ou ustensil de la recette correspond au tag, j'incrémente le currentScore de la recette
         let tagContent = tag.textContent.toLowerCase();
         if (
@@ -120,7 +122,7 @@ function filter(e) {
         ) {
           currentScore++;
         }
-      });
+      }
       //   Enfin, si les deux variables sont égales, donc si la ou les recherches correspondent à la celles de l'utilisateur, les recettes resteront affichés. Si elles ne correspondent pas, les recettes seront cachées.
       if (correctScore == currentScore) {
         visibleRecipe = true;
@@ -129,7 +131,7 @@ function filter(e) {
         visibleRecipe = false;
       }
       recipe.element.classList.toggle('hide', !visibleRecipe);
-    });
+    }
     injectAllAdvancedFilters(
       [IngredientsArray, AppliancesArray, UstensilsArray],
       [containerIngredients, containerAppliances, containerUstensils]
@@ -220,7 +222,8 @@ function checkInputFilters(e) {
 // Création et injection des items de filtres avancés
 async function injectAllAdvancedFilters(array, parent) {
   let i = 0;
-  parent.forEach((childContainer) => {
+  for (let index = 0; index < parent.length; index++) {
+    const childContainer = parent[index];
     childContainer.children[0].innerHTML = '';
     const type = childContainer.className.substr(20);
     const correctType = type.split(' ')[0];
@@ -232,7 +235,7 @@ async function injectAllAdvancedFilters(array, parent) {
       childContainer.children[0].appendChild(liste);
     });
     i++;
-  });
+  }
 }
 
 // Fonction pour remplir les tableaux d'ingrédients, ustensils et appareils

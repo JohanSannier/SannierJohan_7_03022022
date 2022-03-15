@@ -121,9 +121,6 @@ function filter(e) {
           currentScore++;
         }
       });
-      if (currentScore >= 1) {
-        console.log(recipe.name + ' ' + currentScore);
-      }
       //   Enfin, si les deux variables sont égales, donc si la ou les recherches correspondent à la celles de l'utilisateur, les recettes resteront affichés. Si elles ne correspondent pas, les recettes seront cachées.
       if (correctScore == currentScore) {
         visibleRecipe = true;
@@ -133,7 +130,6 @@ function filter(e) {
       }
       recipe.element.classList.toggle('hide', !visibleRecipe);
     });
-    console.log(UstensilsArray);
     injectAllAdvancedFilters(
       [IngredientsArray, AppliancesArray, UstensilsArray],
       [containerIngredients, containerAppliances, containerUstensils]
@@ -225,16 +221,15 @@ function checkInputFilters(e) {
 async function injectAllAdvancedFilters(array, parent) {
   let i = 0;
   parent.forEach((childContainer) => {
-    childContainer.firstChild.innerHTML = '';
+    childContainer.children[0].innerHTML = '';
     const type = childContainer.className.substr(20);
     const correctType = type.split(' ')[0];
-
     array[i].forEach((element) => {
       let liste = document.createElement('li');
       liste.classList.add('main-list', 'w-33');
       liste.setAttribute('data-color', correctType);
       liste.innerText = element;
-      childContainer.firstChild.appendChild(liste);
+      childContainer.children[0].appendChild(liste);
     });
     i++;
   });

@@ -363,24 +363,18 @@ function clearContent() {
 // Gestion des évènements de création des filtres au clic sur les boutons de filtres avancés
 window.addEventListener('click', (e) => {
   switch (e.target.id) {
-    case 'ingredients':
-      getInputFilters(e.target, 'primary');
-      break;
     case 'chevron-ingredients':
+      getInputFilters(document.querySelector('#ingredients'), 'primary');
       changeDisplay(containerIngredients);
       getAllDataFilter();
       break;
-    case 'appliance':
-      getInputFilters(e.target, 'success');
-      break;
     case 'chevron-appliance':
+      getInputFilters(document.querySelector('#appliance'), 'success');
       changeDisplay(containerAppliances);
       getAllDataFilter();
       break;
-    case 'ustensil':
-      getInputFilters(e.target, 'danger');
-      break;
     case 'chevron-ustensil':
+      getInputFilters(document.querySelector('#ustensil'), 'danger');
       changeDisplay(containerUstensils);
       getAllDataFilter();
       break;

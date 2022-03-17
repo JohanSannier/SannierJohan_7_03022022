@@ -76,6 +76,8 @@
   position: absolute;
   z-index: -3;
   width: 40rem;
+  border-radius: 5px;
+  border-top-left-radius: initial !important;
 }
 
 .active-width {

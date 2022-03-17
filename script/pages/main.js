@@ -175,7 +175,7 @@ function getInputFilters(type, color) {
   let input = document.createElement('input');
   input.classList.add('btn', `btn-${color}`);
   const dataName = type.getAttribute('data-name');
-  input.setAttribute('placeholder', `Rechercher un ${dataName}`);
+  input.setAttribute('placeholder', `Chercher un ${dataName}`);
   input.setAttribute('type', 'search');
   input.classList.add('text-white', 'p-0', 'input-advanced-filters');
   input.setAttribute('id', `input-${color}`);
@@ -257,11 +257,17 @@ function changeDisplay(target) {
   let activeFilter = document.querySelector('.active-filter');
   let newChevron = target.previousElementSibling.children[1];
   let btnParent = target.previousElementSibling;
+  let typeBtn =
+    target.previousElementSibling.children[0].getAttribute('data-fr');
 
   if (target.classList.contains('active-filter') && target == activeFilter) {
     target.classList.remove('active-filter');
     btnParent.classList.remove('border-fix');
     newChevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
+    console.log(target.previousElementSibling.children[0]);
+    console.log(typeBtn);
+    target.previousElementSibling.children[0].innerHTML = '';
+    target.previousElementSibling.children[0].innerText = typeBtn;
   } else if (
     totalContainerFilter.some((element) =>
       element.classList.contains('active-filter')
@@ -274,6 +280,8 @@ function changeDisplay(target) {
       'active-width'
     );
     activeFilter.parentNode.classList.remove('active-width');
+    activeFilter.previousElementSibling.children[0].innerHTML = '';
+    activeFilter.previousElementSibling.children[0].innerText = typeBtn;
     activeFilter.classList.remove('active-filter');
     target.classList.add('active-filter');
     btnParent.classList.add('border-fix');
@@ -357,24 +365,18 @@ function clearContent() {
 // Gestion des évènements de création des filtres au clic sur les boutons de filtres avancés
 window.addEventListener('click', (e) => {
   switch (e.target.id) {
-    case 'ingredients':
-      getInputFilters(e.target, 'primary');
-      break;
     case 'chevron-ingredients':
+      getInputFilters(document.querySelector('#ingredients'), 'primary');
       changeDisplay(containerIngredients);
       getAllDataFilter();
       break;
-    case 'appliance':
-      getInputFilters(e.target, 'success');
-      break;
     case 'chevron-appliance':
+      getInputFilters(document.querySelector('#appliance'), 'success');
       changeDisplay(containerAppliances);
       getAllDataFilter();
       break;
-    case 'ustensil':
-      getInputFilters(e.target, 'danger');
-      break;
     case 'chevron-ustensil':
+      getInputFilters(document.querySelector('#ustensil'), 'danger');
       changeDisplay(containerUstensils);
       getAllDataFilter();
       break;

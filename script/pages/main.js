@@ -141,7 +141,7 @@ function filter(e) {
 }
 
 // Fonction pour afficher tous les ingrédients, ustensils et appareils dès le chargement de la page
-async function populateOnLoad() {
+function populateOnLoad() {
   allRecipes.forEach((recipe) => {
     recipe.ingredients.forEach((ingredient) => {
       if (onLoadIngredientsArray.indexOf(ingredient.ingredient) == -1) {
@@ -160,8 +160,8 @@ async function populateOnLoad() {
 }
 
 // Fonction sauvegarder les filtres avancés dans leur tableaux respectifs
-async function getAllDataFilter() {
-  let data = await populateOnLoad();
+function getAllDataFilter() {
+  let data = populateOnLoad();
   if (searchbar.value.length == 0 && allTags.length == 0) {
     injectAllAdvancedFilters(
       [onLoadIngredientsArray, onLoadAppliancesArray, onLoadUstensilsArray],

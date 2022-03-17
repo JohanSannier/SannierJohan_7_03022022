@@ -74,72 +74,70 @@ fetch(url)
 
 // Fonction pour filtrer ce que recherche l'utilisateur et afficher les recettes correspondantes
 function filter(e) {
-  setTimeout(() => {
-    //   Déclaration d'un compteur global qui correspond à la valeur correcte en fonction de la recherche effectuée et qui sera remise à 0 à chaque appel de la fonction
-    let value = searchbar.value;
-    let correctScore = 0;
-    let visibleRecipe = false;
-    clearContent();
+  //   Déclaration d'un compteur global qui correspond à la valeur correcte en fonction de la recherche effectuée et qui sera remise à 0 à chaque appel de la fonction
+  let value = searchbar.value;
+  let correctScore = 0;
+  let visibleRecipe = false;
+  clearContent();
+  if (value.length >= 3) {
+    // Si l'utilisateur a effectué une recherche d'au moins 3 caractères, la variable correctScore passe à 1, sinon elle revient à 0
+    correctScore = 1;
+  } else {
+    correctScore = 0;
+  }
+  let selectedTags = Array.from(allTags);
+  selectedTags.forEach((tag) => {
+    // Pour chaque tag actuellement sélectionné, j'incrémente la variable correctScore de 1
+    correctScore++;
+  });
+  allRecipes.forEach((recipe) => {
+    // Pour chaque recette, je créé une nouvelle variable currentScore qui représentera les scores atteints par chaque recette
+    let currentScore = 0;
     if (value.length >= 3) {
-      // Si l'utilisateur a effectué une recherche d'au moins 3 caractères, la variable correctScore passe à 1, sinon elle revient à 0
-      correctScore = 1;
-    } else {
-      correctScore = 0;
+      //   Si la recherche principale est correcte, currentScore passe à 1
+      if (
+        recipe.name.toLowerCase().includes(value) ||
+        recipe.description.toLowerCase().includes(value) ||
+        recipe.ingredients.some((ingr) =>
+          ingr.ingredient.toLowerCase().includes(value)
+        )
+      ) {
+        currentScore = 1;
+      }
     }
-    let selectedTags = Array.from(allTags);
     selectedTags.forEach((tag) => {
-      // Pour chaque tag actuellement sélectionné, j'incrémente la variable correctScore de 1
-      correctScore++;
-    });
-    allRecipes.forEach((recipe) => {
-      // Pour chaque recette, je créé une nouvelle variable currentScore qui représentera les scores atteints par chaque recette
-      let currentScore = 0;
-      if (value.length >= 3) {
-        //   Si la recherche principale est correcte, currentScore passe à 1
-        if (
-          recipe.name.toLowerCase().includes(value) ||
-          recipe.description.toLowerCase().includes(value) ||
-          recipe.ingredients.some((ingr) =>
-            ingr.ingredient.toLowerCase().includes(value)
-          )
-        ) {
-          currentScore = 1;
-        }
+      //   Pour chaque tag, si un ingrédient, appareil ou ustensil de la recette correspond au tag, j'incrémente le currentScore de la recette
+      let tagContent = tag.textContent.toLowerCase();
+      if (
+        recipe.appliance.toLowerCase().includes(tagContent) ||
+        recipe.ustensils.some((ustensil) =>
+          ustensil.toLowerCase().includes(tagContent)
+        ) ||
+        recipe.ingredients.some((ingr) =>
+          ingr.ingredient.toLowerCase().includes(tagContent)
+        )
+      ) {
+        currentScore++;
       }
-      selectedTags.forEach((tag) => {
-        //   Pour chaque tag, si un ingrédient, appareil ou ustensil de la recette correspond au tag, j'incrémente le currentScore de la recette
-        let tagContent = tag.textContent.toLowerCase();
-        if (
-          recipe.appliance.toLowerCase().includes(tagContent) ||
-          recipe.ustensils.some((ustensil) =>
-            ustensil.toLowerCase().includes(tagContent)
-          ) ||
-          recipe.ingredients.some((ingr) =>
-            ingr.ingredient.toLowerCase().includes(tagContent)
-          )
-        ) {
-          currentScore++;
-        }
-      });
-      //   Enfin, si les deux variables sont égales, donc si la ou les recherches correspondent à la celles de l'utilisateur, les recettes resteront affichés. Si elles ne correspondent pas, les recettes seront cachées.
-      if (correctScore == currentScore) {
-        visibleRecipe = true;
-        populateArray(recipe);
-      } else {
-        visibleRecipe = false;
-      }
-      recipe.element.classList.toggle('hide', !visibleRecipe);
     });
-    injectAllAdvancedFilters(
-      [IngredientsArray, AppliancesArray, UstensilsArray],
-      [containerIngredients, containerAppliances, containerUstensils]
-    );
-    if (document.getElementsByClassName('hide').length == allRecipes.length) {
-      invalidSearchInput.classList.replace('d-none', 'd-inline');
+    //   Enfin, si les deux variables sont égales, donc si la ou les recherches correspondent à la celles de l'utilisateur, les recettes resteront affichés. Si elles ne correspondent pas, les recettes seront cachées.
+    if (correctScore == currentScore) {
+      visibleRecipe = true;
+      populateArray(recipe);
     } else {
-      invalidSearchInput.classList.replace('d-inline', 'd-none');
+      visibleRecipe = false;
     }
-  }, 100);
+    recipe.element.classList.toggle('hide', !visibleRecipe);
+  });
+  injectAllAdvancedFilters(
+    [IngredientsArray, AppliancesArray, UstensilsArray],
+    [containerIngredients, containerAppliances, containerUstensils]
+  );
+  if (document.getElementsByClassName('hide').length == allRecipes.length) {
+    invalidSearchInput.classList.replace('d-none', 'd-inline');
+  } else {
+    invalidSearchInput.classList.replace('d-inline', 'd-none');
+  }
 }
 
 // Fonction pour afficher tous les ingrédients, ustensils et appareils dès le chargement de la page
@@ -220,7 +218,7 @@ function checkInputFilters(e) {
 }
 
 // Création et injection des items de filtres avancés
-async function injectAllAdvancedFilters(array, parent) {
+function injectAllAdvancedFilters(array, parent) {
   let i = 0;
   parent.forEach((childContainer) => {
     childContainer.children[0].innerHTML = '';
@@ -288,7 +286,7 @@ function changeDisplay(target) {
 }
 
 // Fonction pour sélectionner les tags sur les filtres
-async function advancedFiltering(e) {
+function advancedFiltering(e) {
   // Je récupère l'attribut data-color pour obtenir le style correct du tag si c'est un ingrédient, appareil ou un ustensil
   if (e.target.classList.contains('main-list')) {
     // Si il n'y a aucun tag sélectionné je créé un tag
@@ -393,9 +391,11 @@ window.addEventListener('click', (e) => {
       break;
   }
   if (e.target.classList.contains('main-list')) {
+    advancedFiltering(e);
     filter(e);
+  } else {
+    advancedFiltering(e);
   }
-  advancedFiltering(e);
 });
 
 window.addEventListener('input', (e) => {

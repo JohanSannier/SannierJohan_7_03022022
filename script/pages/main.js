@@ -194,19 +194,16 @@ function checkInputFilters(e) {
   let itemsContainer;
   switch (e.target.id) {
     case 'input-primary':
-      itemsContainer = document.getElementById(
-        'container-ingredients'
-      ).firstChild;
+      itemsContainer = document.getElementById('container-ingredients')
+        .children[0];
       break;
     case 'input-success':
-      itemsContainer = document.getElementById(
-        'container-appliances'
-      ).firstChild;
+      itemsContainer = document.getElementById('container-appliances')
+        .children[0];
       break;
     case 'input-danger':
-      itemsContainer = document.getElementById(
-        'container-ustensils'
-      ).firstChild;
+      itemsContainer = document.getElementById('container-ustensils')
+        .children[0];
       break;
 
     default:
@@ -263,11 +260,15 @@ function changeDisplay(target) {
   let activeFilter = document.querySelector('.active-filter');
   let newChevron = target.previousElementSibling.children[1];
   let btnParent = target.previousElementSibling;
+  let typeBtn =
+    target.previousElementSibling.children[0].getAttribute('data-fr');
 
   if (target.classList.contains('active-filter') && target == activeFilter) {
     target.classList.remove('active-filter');
     btnParent.classList.remove('border-fix');
     newChevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
+    target.previousElementSibling.children[0].innerHTML = '';
+    target.previousElementSibling.children[0].innerText = typeBtn;
   } else if (
     totalContainerFilter.some((element) =>
       element.classList.contains('active-filter')
@@ -280,6 +281,8 @@ function changeDisplay(target) {
       'active-width'
     );
     activeFilter.parentNode.classList.remove('active-width');
+    activeFilter.previousElementSibling.children[0].innerHTML = '';
+    activeFilter.previousElementSibling.children[0].innerText = typeBtn;
     activeFilter.classList.remove('active-filter');
     target.classList.add('active-filter');
     btnParent.classList.add('border-fix');

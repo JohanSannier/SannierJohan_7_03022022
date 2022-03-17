@@ -264,8 +264,6 @@ function changeDisplay(target) {
     target.classList.remove('active-filter');
     btnParent.classList.remove('border-fix');
     newChevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
-    console.log(target.previousElementSibling.children[0]);
-    console.log(typeBtn);
     target.previousElementSibling.children[0].innerHTML = '';
     target.previousElementSibling.children[0].innerText = typeBtn;
   } else if (

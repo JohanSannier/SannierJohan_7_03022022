@@ -1,16 +1,13 @@
+/* eslint-disable no-unused-vars */
 const userCardTemplate = document.querySelector('[data-user-template]');
 const searchbar = document.querySelector('#searchbar');
 const mainSection = document.getElementById('main-section');
 const invalidSearchInput = document.querySelector('#invalid-search');
 const url = '../../data/recipes.json';
-const colBtnIngredient = document.querySelector('#col-btn-ingredients');
 const containerIngredients = document.querySelector('#container-ingredients');
-const colBtnAppliance = document.querySelector('#col-btn-appliance');
 const containerAppliances = document.querySelector('#container-appliances');
-const colBtnUstensil = document.querySelector('#col-btn-ustensil');
 const containerUstensils = document.querySelector('#container-ustensils');
 const tagsContainer = document.querySelector('#tags-container');
-const filterButtons = document.getElementsByClassName('advanced-filters');
 const totalContainerFilter = [
   containerIngredients,
   containerAppliances,
@@ -73,7 +70,7 @@ fetch(url)
   });
 
 // Fonction pour filtrer ce que recherche l'utilisateur et afficher les recettes correspondantes
-function filter(e) {
+function filter(_e) {
   //   Déclaration d'un compteur global qui correspond à la valeur correcte en fonction de la recherche effectuée et qui sera remise à 0 à chaque appel de la fonction
   let value = searchbar.value;
   let correctScore = 0;
@@ -317,6 +314,7 @@ function advancedFiltering(e) {
 
 // Fonction qui créé le tag du filtre
 function createTag(e) {
+  let color = ""
   switch (e.target.getAttribute('data-color')) {
     case 'primary':
       color = 'primary';

@@ -259,7 +259,6 @@ function changeDisplay(target) {
   let btnParent = target.previousElementSibling;
   let typeBtn =
     target.previousElementSibling.children[0].getAttribute('data-fr');
-
   if (target.classList.contains('active-filter') && target == activeFilter) {
     target.classList.remove('active-filter');
     btnParent.classList.remove('border-fix');
@@ -279,7 +278,8 @@ function changeDisplay(target) {
     );
     activeFilter.parentNode.classList.remove('active-width');
     activeFilter.previousElementSibling.children[0].innerHTML = '';
-    activeFilter.previousElementSibling.children[0].innerText = typeBtn;
+    activeFilter.previousElementSibling.children[0].innerText =
+      activeFilter.previousElementSibling.children[0].getAttribute('data-fr');
     activeFilter.classList.remove('active-filter');
     target.classList.add('active-filter');
     btnParent.classList.add('border-fix');
